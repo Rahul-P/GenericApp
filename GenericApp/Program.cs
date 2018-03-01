@@ -14,7 +14,7 @@ namespace GenericApp
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run(); // some comment. some more. and more.
+            BuildWebHost(args).Run(); // some comment. some more. and more. check
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
