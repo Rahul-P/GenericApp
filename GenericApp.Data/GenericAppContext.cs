@@ -20,11 +20,17 @@ namespace GenericApp.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ResponsibleRole_Task>()
-                .HasKey(k => new { k.ResponsibleRoleId, k.TaskId });
+            modelBuilder.Entity<Workflow>().ToTable(name: "Workflow", schema: "Workflow");
+            modelBuilder.Entity<ResponsibleRole>().ToTable(name: "ResponsibleRole", schema: "Task");
+            modelBuilder.Entity<Task>().ToTable(name: "Task", schema: "Task");
+            modelBuilder.Entity<TaskType>().ToTable(name: "TaskType", schema: "Task");
+            modelBuilder.Entity<TaskInput>().ToTable(name: "TaskInput", schema: "Task");
+            modelBuilder.Entity<TaskOutput>().ToTable(name: "TaskOutput", schema: "Task");
 
-            //modelBuilder.Entity<Task>()
-            //    .Property(p => p.TaskType).IsRequired();
+            modelBuilder.Entity<ResponsibleRole_Task>().ToTable(name: "ResponsibleRole_Task", schema: "ManyToMany");          
+
+            modelBuilder.Entity<ResponsibleRole_Task>()
+                .HasKey(k => new { k.ResponsibleRoleId, k.TaskId });           
 
             base.OnModelCreating(modelBuilder);
         }

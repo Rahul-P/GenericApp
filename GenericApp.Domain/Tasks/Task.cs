@@ -12,6 +12,7 @@ namespace GenericApp.Domain
             ResponsibleRole_Tasks = new List<ResponsibleRole_Task>();
         }
         public string Name { get; set; }
+        public int Status { get; set; }
 
         public TaskType TaskType { get; set; }
 

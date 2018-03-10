@@ -11,7 +11,7 @@ using System;
 namespace GenericApp.Data.Migrations
 {
     [DbContext(typeof(GenericAppContext))]
-    [Migration("20180310074923_3March18_1_FirstEver")]
+    [Migration("20180310101022_3March18_1_FirstEver")]
     partial class _3March18_1_FirstEver
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,7 +31,7 @@ namespace GenericApp.Data.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("ResponsibleRole_Task");
+                    b.ToTable("ResponsibleRole_Task","ManyToMany");
                 });
 
             modelBuilder.Entity("GenericApp.Domain.ResponsibleRole", b =>
@@ -53,7 +53,7 @@ namespace GenericApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ResponsibleRole");
+                    b.ToTable("ResponsibleRole","Task");
                 });
 
             modelBuilder.Entity("GenericApp.Domain.Task", b =>
@@ -73,13 +73,15 @@ namespace GenericApp.Data.Migrations
 
                     b.Property<byte[]>("Rowversion");
 
+                    b.Property<int>("Status");
+
                     b.Property<int>("WorkflowId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("WorkflowId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Task","Task");
                 });
 
             modelBuilder.Entity("GenericApp.Domain.TaskInput", b =>
@@ -105,7 +107,7 @@ namespace GenericApp.Data.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("TaskInputs");
+                    b.ToTable("TaskInput","Task");
                 });
 
             modelBuilder.Entity("GenericApp.Domain.TaskOutput", b =>
@@ -131,7 +133,7 @@ namespace GenericApp.Data.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("TaskOutputs");
+                    b.ToTable("TaskOutput","Task");
                 });
 
             modelBuilder.Entity("GenericApp.Domain.TaskType", b =>
@@ -158,7 +160,7 @@ namespace GenericApp.Data.Migrations
                     b.HasIndex("TaskId")
                         .IsUnique();
 
-                    b.ToTable("TaskTypes");
+                    b.ToTable("TaskType","Task");
                 });
 
             modelBuilder.Entity("GenericApp.Domain.Workflow", b =>
@@ -180,7 +182,7 @@ namespace GenericApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Workflows");
+                    b.ToTable("Workflow","Workflow");
                 });
 
             modelBuilder.Entity("GenericApp.Domain.Relationships.ManyToMany.ResponsibleRole_Task", b =>

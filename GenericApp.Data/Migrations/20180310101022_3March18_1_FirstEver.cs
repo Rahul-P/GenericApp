@@ -9,8 +9,18 @@ namespace GenericApp.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "ManyToMany");
+
+            migrationBuilder.EnsureSchema(
+                name: "Task");
+
+            migrationBuilder.EnsureSchema(
+                name: "Workflow");
+
             migrationBuilder.CreateTable(
                 name: "ResponsibleRole",
+                schema: "Task",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -28,7 +38,8 @@ namespace GenericApp.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Workflows",
+                name: "Workflow",
+                schema: "Workflow",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -42,11 +53,12 @@ namespace GenericApp.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Workflows", x => x.Id);
+                    table.PrimaryKey("PK_Workflow", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tasks",
+                name: "Task",
+                schema: "Task",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -57,21 +69,24 @@ namespace GenericApp.Data.Migrations
                     LastModifiedBy = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
                     Rowversion = table.Column<byte[]>(nullable: true),
+                    Status = table.Column<int>(nullable: false),
                     WorkflowId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tasks", x => x.Id);
+                    table.PrimaryKey("PK_Task", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tasks_Workflows_WorkflowId",
+                        name: "FK_Task_Workflow_WorkflowId",
                         column: x => x.WorkflowId,
-                        principalTable: "Workflows",
+                        principalSchema: "Workflow",
+                        principalTable: "Workflow",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "ResponsibleRole_Task",
+                schema: "ManyToMany",
                 columns: table => new
                 {
                     ResponsibleRoleId = table.Column<int>(nullable: false),
@@ -83,19 +98,22 @@ namespace GenericApp.Data.Migrations
                     table.ForeignKey(
                         name: "FK_ResponsibleRole_Task_ResponsibleRole_ResponsibleRoleId",
                         column: x => x.ResponsibleRoleId,
+                        principalSchema: "Task",
                         principalTable: "ResponsibleRole",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ResponsibleRole_Task_Tasks_TaskId",
+                        name: "FK_ResponsibleRole_Task_Task_TaskId",
                         column: x => x.TaskId,
-                        principalTable: "Tasks",
+                        principalSchema: "Task",
+                        principalTable: "Task",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "TaskInputs",
+                name: "TaskInput",
+                schema: "Task",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -110,17 +128,19 @@ namespace GenericApp.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TaskInputs", x => x.Id);
+                    table.PrimaryKey("PK_TaskInput", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TaskInputs_Tasks_TaskId",
+                        name: "FK_TaskInput_Task_TaskId",
                         column: x => x.TaskId,
-                        principalTable: "Tasks",
+                        principalSchema: "Task",
+                        principalTable: "Task",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "TaskOutputs",
+                name: "TaskOutput",
+                schema: "Task",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -135,17 +155,19 @@ namespace GenericApp.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TaskOutputs", x => x.Id);
+                    table.PrimaryKey("PK_TaskOutput", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TaskOutputs_Tasks_TaskId",
+                        name: "FK_TaskOutput_Task_TaskId",
                         column: x => x.TaskId,
-                        principalTable: "Tasks",
+                        principalSchema: "Task",
+                        principalTable: "Task",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "TaskTypes",
+                name: "TaskType",
+                schema: "Task",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -160,38 +182,44 @@ namespace GenericApp.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TaskTypes", x => x.Id);
+                    table.PrimaryKey("PK_TaskType", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TaskTypes_Tasks_TaskId",
+                        name: "FK_TaskType_Task_TaskId",
                         column: x => x.TaskId,
-                        principalTable: "Tasks",
+                        principalSchema: "Task",
+                        principalTable: "Task",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ResponsibleRole_Task_TaskId",
+                schema: "ManyToMany",
                 table: "ResponsibleRole_Task",
                 column: "TaskId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TaskInputs_TaskId",
-                table: "TaskInputs",
-                column: "TaskId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TaskOutputs_TaskId",
-                table: "TaskOutputs",
-                column: "TaskId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tasks_WorkflowId",
-                table: "Tasks",
+                name: "IX_Task_WorkflowId",
+                schema: "Task",
+                table: "Task",
                 column: "WorkflowId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TaskTypes_TaskId",
-                table: "TaskTypes",
+                name: "IX_TaskInput_TaskId",
+                schema: "Task",
+                table: "TaskInput",
+                column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskOutput_TaskId",
+                schema: "Task",
+                table: "TaskOutput",
+                column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskType_TaskId",
+                schema: "Task",
+                table: "TaskType",
                 column: "TaskId",
                 unique: true);
         }
@@ -199,25 +227,32 @@ namespace GenericApp.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ResponsibleRole_Task");
+                name: "ResponsibleRole_Task",
+                schema: "ManyToMany");
 
             migrationBuilder.DropTable(
-                name: "TaskInputs");
+                name: "TaskInput",
+                schema: "Task");
 
             migrationBuilder.DropTable(
-                name: "TaskOutputs");
+                name: "TaskOutput",
+                schema: "Task");
 
             migrationBuilder.DropTable(
-                name: "TaskTypes");
+                name: "TaskType",
+                schema: "Task");
 
             migrationBuilder.DropTable(
-                name: "ResponsibleRole");
+                name: "ResponsibleRole",
+                schema: "Task");
 
             migrationBuilder.DropTable(
-                name: "Tasks");
+                name: "Task",
+                schema: "Task");
 
             migrationBuilder.DropTable(
-                name: "Workflows");
+                name: "Workflow",
+                schema: "Workflow");
         }
     }
 }

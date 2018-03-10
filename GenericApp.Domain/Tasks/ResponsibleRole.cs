@@ -1,7 +1,5 @@
 ﻿using GenericApp.Domain.Relationships.ManyToMany;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace GenericApp.Domain
 {
