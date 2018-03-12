@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GenericApp.Domain
+namespace Tasks.Domain
 {
     public class Workflow : BaseDomain
     {
@@ -9,6 +9,8 @@ namespace GenericApp.Domain
             WorkFlowTasks = new List<Task>();
         }
         public string Name { get; set; }
+
+        public int Status { get; set; }
         
         public IList<Task> WorkFlowTasks { get; set; }
         

@@ -25,8 +25,10 @@ namespace GenericApp.Data.Logger
 
             public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
               Func<TState, Exception, string> formatter)
-            {              
-               File.AppendAllText(@"C:\temp\GenericAppEF.txt", formatter(state, exception));                            
+            {
+                //File.AppendAllText(@"C:\temp\GenericAppEF.txt", formatter(state, exception));   
+                Console.WriteLine(formatter(state, exception));
+                Console.ReadKey();
             }
 
             public IDisposable BeginScope<TState>(TState state)

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GenericApp.Domain
+namespace Tasks.Domain
 {
     public class BaseDomain
     {

@@ -1,7 +1,7 @@
-﻿using GenericApp.Domain.Relationships.ManyToMany;
+﻿using Tasks.Domain.Relationships.ManyToMany;
 using System.Collections.Generic;
 
-namespace GenericApp.Domain
+namespace Tasks.Domain
 {
     public class Task : BaseDomain
     {

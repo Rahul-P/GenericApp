@@ -1,4 +1,4 @@
-﻿namespace GenericApp.Domain
+﻿namespace Tasks.Domain
 {
     public class TaskInput : BaseDomain
     {        

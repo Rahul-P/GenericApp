@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TaskBL
+namespace GenericApp.TaskBL
 {
     public class Orchestrator
     {

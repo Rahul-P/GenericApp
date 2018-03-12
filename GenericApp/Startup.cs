@@ -2,10 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GenericApp.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
+//dotnet ef migrations add 3March18_1_FirstEver
+//dotnet ef database update
+//dotnet ef migrations remove
+
+//Main command : dotnet ef --startup-project "..\GenericApp" database update
+//from- 
+//PS C:\ShiTiLikes\GenericApp\GenericApp.Data> dotnet ef --startup-project "..\GenericApp" database update
 
 namespace GenericApp
 {
@@ -15,6 +25,14 @@ namespace GenericApp
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<GenericAppContext>
+                (options =>
+                {
+                    options.UseSqlServer
+                    ("Server = DESKTOP-8E34R4N\\SQLEXPRESS; Database = GenericDBWeb; Trusted_Connection = True;");
+
+                });       
+
             services.AddMvc();
         }
 

@@ -11,8 +11,8 @@ using System;
 namespace GenericApp.Data.Migrations
 {
     [DbContext(typeof(GenericAppContext))]
-    [Migration("20180310101022_3March18_1_FirstEver")]
-    partial class _3March18_1_FirstEver
+    [Migration("20180312042027_12March18_1_FirstEver")]
+    partial class _12March18_1_FirstEver
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,7 @@ namespace GenericApp.Data.Migrations
                 .HasAnnotation("ProductVersion", "2.0.1-rtm-125")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("GenericApp.Domain.Relationships.ManyToMany.ResponsibleRole_Task", b =>
+            modelBuilder.Entity("Tasks.Domain.Relationships.ManyToMany.ResponsibleRole_Task", b =>
                 {
                     b.Property<int>("ResponsibleRoleId");
 
@@ -34,7 +34,7 @@ namespace GenericApp.Data.Migrations
                     b.ToTable("ResponsibleRole_Task","ManyToMany");
                 });
 
-            modelBuilder.Entity("GenericApp.Domain.ResponsibleRole", b =>
+            modelBuilder.Entity("Tasks.Domain.ResponsibleRole", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -56,7 +56,7 @@ namespace GenericApp.Data.Migrations
                     b.ToTable("ResponsibleRole","Task");
                 });
 
-            modelBuilder.Entity("GenericApp.Domain.Task", b =>
+            modelBuilder.Entity("Tasks.Domain.Task", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -84,7 +84,7 @@ namespace GenericApp.Data.Migrations
                     b.ToTable("Task","Task");
                 });
 
-            modelBuilder.Entity("GenericApp.Domain.TaskInput", b =>
+            modelBuilder.Entity("Tasks.Domain.TaskInput", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -110,7 +110,7 @@ namespace GenericApp.Data.Migrations
                     b.ToTable("TaskInput","Task");
                 });
 
-            modelBuilder.Entity("GenericApp.Domain.TaskOutput", b =>
+            modelBuilder.Entity("Tasks.Domain.TaskOutput", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -136,7 +136,7 @@ namespace GenericApp.Data.Migrations
                     b.ToTable("TaskOutput","Task");
                 });
 
-            modelBuilder.Entity("GenericApp.Domain.TaskType", b =>
+            modelBuilder.Entity("Tasks.Domain.TaskType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -163,7 +163,7 @@ namespace GenericApp.Data.Migrations
                     b.ToTable("TaskType","Task");
                 });
 
-            modelBuilder.Entity("GenericApp.Domain.Workflow", b =>
+            modelBuilder.Entity("Tasks.Domain.Workflow", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -180,53 +180,55 @@ namespace GenericApp.Data.Migrations
 
                     b.Property<byte[]>("Rowversion");
 
+                    b.Property<int>("Status");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Workflow","Workflow");
+                    b.ToTable("Workflow","Task");
                 });
 
-            modelBuilder.Entity("GenericApp.Domain.Relationships.ManyToMany.ResponsibleRole_Task", b =>
+            modelBuilder.Entity("Tasks.Domain.Relationships.ManyToMany.ResponsibleRole_Task", b =>
                 {
-                    b.HasOne("GenericApp.Domain.ResponsibleRole", "ResponsibleRole")
+                    b.HasOne("Tasks.Domain.ResponsibleRole", "ResponsibleRole")
                         .WithMany("ResponsibleRole_Tasks")
                         .HasForeignKey("ResponsibleRoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("GenericApp.Domain.Task", "Task")
+                    b.HasOne("Tasks.Domain.Task", "Task")
                         .WithMany("ResponsibleRole_Tasks")
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("GenericApp.Domain.Task", b =>
+            modelBuilder.Entity("Tasks.Domain.Task", b =>
                 {
-                    b.HasOne("GenericApp.Domain.Workflow", "Workflow")
+                    b.HasOne("Tasks.Domain.Workflow", "Workflow")
                         .WithMany("WorkFlowTasks")
                         .HasForeignKey("WorkflowId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("GenericApp.Domain.TaskInput", b =>
+            modelBuilder.Entity("Tasks.Domain.TaskInput", b =>
                 {
-                    b.HasOne("GenericApp.Domain.Task", "Task")
+                    b.HasOne("Tasks.Domain.Task", "Task")
                         .WithMany("RequiredTaskInputs")
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("GenericApp.Domain.TaskOutput", b =>
+            modelBuilder.Entity("Tasks.Domain.TaskOutput", b =>
                 {
-                    b.HasOne("GenericApp.Domain.Task", "Task")
+                    b.HasOne("Tasks.Domain.Task", "Task")
                         .WithMany("ExpectedTaskOutputs")
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("GenericApp.Domain.TaskType", b =>
+            modelBuilder.Entity("Tasks.Domain.TaskType", b =>
                 {
-                    b.HasOne("GenericApp.Domain.Task", "Task")
+                    b.HasOne("Tasks.Domain.Task", "Task")
                         .WithOne("TaskType")
-                        .HasForeignKey("GenericApp.Domain.TaskType", "TaskId")
+                        .HasForeignKey("Tasks.Domain.TaskType", "TaskId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

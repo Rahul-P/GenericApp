@@ -1,4 +1,4 @@
-﻿namespace GenericApp.Domain.Relationships.ManyToMany
+﻿namespace Tasks.Domain.Relationships.ManyToMany
 {
     public class ResponsibleRole_Task
     {

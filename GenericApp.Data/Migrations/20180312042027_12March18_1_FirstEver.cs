@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GenericApp.Data.Migrations
 {
-    public partial class _3March18_1_FirstEver : Migration
+    public partial class _12March18_1_FirstEver : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,9 +14,6 @@ namespace GenericApp.Data.Migrations
 
             migrationBuilder.EnsureSchema(
                 name: "Task");
-
-            migrationBuilder.EnsureSchema(
-                name: "Workflow");
 
             migrationBuilder.CreateTable(
                 name: "ResponsibleRole",
@@ -39,7 +36,7 @@ namespace GenericApp.Data.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Workflow",
-                schema: "Workflow",
+                schema: "Task",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -49,7 +46,8 @@ namespace GenericApp.Data.Migrations
                     LastModified = table.Column<DateTime>(nullable: false),
                     LastModifiedBy = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
-                    Rowversion = table.Column<byte[]>(nullable: true)
+                    Rowversion = table.Column<byte[]>(nullable: true),
+                    Status = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -78,7 +76,7 @@ namespace GenericApp.Data.Migrations
                     table.ForeignKey(
                         name: "FK_Task_Workflow_WorkflowId",
                         column: x => x.WorkflowId,
-                        principalSchema: "Workflow",
+                        principalSchema: "Task",
                         principalTable: "Workflow",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -252,7 +250,7 @@ namespace GenericApp.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Workflow",
-                schema: "Workflow");
+                schema: "Task");
         }
     }
 }

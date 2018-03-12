@@ -1,5 +1,5 @@
-﻿using GenericApp.Domain;
-using GenericApp.Domain.Relationships.ManyToMany;
+﻿using Tasks.Domain;
+using Tasks.Domain.Relationships.ManyToMany;
 using Microsoft.EntityFrameworkCore;
 
 namespace GenericApp.Data
@@ -16,11 +16,21 @@ namespace GenericApp.Data
         public DbSet<TaskType> TaskTypes { get; set; }
         public DbSet<TaskInput> TaskInputs { get; set; }
         public DbSet<TaskOutput> TaskOutputs { get; set; }
+        public DbSet<ResponsibleRole_Task> ResponsibleRole_Tasks { get; set; }
         #endregion
+
+        //public GenericAppContext()
+        //{ }
+
+        public GenericAppContext(DbContextOptions<GenericAppContext> options)
+            :base (options)
+        {
+
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Workflow>().ToTable(name: "Workflow", schema: "Workflow");
+            modelBuilder.Entity<Workflow>().ToTable(name: "Workflow", schema: "Task");
             modelBuilder.Entity<ResponsibleRole>().ToTable(name: "ResponsibleRole", schema: "Task");
             modelBuilder.Entity<Task>().ToTable(name: "Task", schema: "Task");
             modelBuilder.Entity<TaskType>().ToTable(name: "TaskType", schema: "Task");
@@ -37,10 +47,11 @@ namespace GenericApp.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer
-                (
-                    "Server = DESKTOP-8E34R4N\\SQLEXPRESS; Database = GenericDB; Trusted_Connection = True;"
-                );
+            //optionsBuilder.UseSqlServer
+            //    (
+            //        "Server = DESKTOP-8E34R4N\\SQLEXPRESS; Database = GenericDB; Trusted_Connection = True;"
+            //    );
+            //optionsBuilder.EnableSensitiveDataLogging(); // remove this later.
             //base.OnConfiguring(optionsBuilder); This does nothing.
         }
     }
