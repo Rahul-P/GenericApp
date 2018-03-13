@@ -2,6 +2,8 @@
 using Tasks.Domain.Relationships.ManyToMany;
 using Microsoft.EntityFrameworkCore;
 using System;
+using DomainCommons;
+using Tasks.Domain.Tasks.Configuration;
 
 namespace GenericApp.Data
 {
@@ -44,12 +46,19 @@ namespace GenericApp.Data
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 //modelBuilder.Entity(entityType.Name).Property<bool>("IsDeleted");
-                modelBuilder.Entity(entityType.Name).Ignore("IsDirty");
 
-                modelBuilder.Entity(entityType.Name).Property<byte>("Rowversion").IsRowVersion().ValueGeneratedOnAddOrUpdate();
-                modelBuilder.Entity(entityType.Name).Property<DateTime>("Created").ValueGeneratedOnAdd();
-                modelBuilder.Entity(entityType.Name).Property<DateTime>("LastModified").ValueGeneratedOnAddOrUpdate();
+
+                //modelBuilder.Entity(entityType.Name).Ignore("IsDirty");
+
+                //modelBuilder.Entity(entityType.Name).Property<byte[]>("Rowversion").IsRowVersion().ValueGeneratedOnAddOrUpdate();
+                //modelBuilder.Entity(entityType.Name).Property<DateTime>("CreatedOn").ValueGeneratedOnAdd();
+                //modelBuilder.Entity(entityType.Name).Property<DateTime>("LastModifiedOn").ValueGeneratedOnAddOrUpdate();
             }
+
+            modelBuilder.ApplyConfiguration(new ResponsibleRoleConfiguration());
+
+
+
 
             base.OnModelCreating(modelBuilder);
         }
