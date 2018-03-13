@@ -1,5 +1,6 @@
 ﻿using Tasks.Domain.Relationships.ManyToMany;
 using System.Collections.Generic;
+using DomainCommons;
 
 namespace Tasks.Domain
 {

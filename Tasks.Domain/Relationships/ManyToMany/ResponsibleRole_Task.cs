@@ -1,6 +1,8 @@
-﻿namespace Tasks.Domain.Relationships.ManyToMany
+﻿using DomainCommons;
+
+namespace Tasks.Domain.Relationships.ManyToMany
 {
-    public class ResponsibleRole_Task
+    public class ResponsibleRole_Task : BaseDomain
     {
         public int ResponsibleRoleId { get; set; }
         public ResponsibleRole ResponsibleRole { get; set; }

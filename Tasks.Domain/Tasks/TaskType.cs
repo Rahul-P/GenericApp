@@ -1,4 +1,6 @@
-﻿namespace Tasks.Domain
+﻿using DomainCommons;
+
+namespace Tasks.Domain
 {
     public class TaskType : BaseDomain
     {

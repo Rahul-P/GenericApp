@@ -26,6 +26,22 @@ namespace GenericApp.Data.Migrations
 
                     b.Property<int>("TaskId");
 
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<int>("Id");
+
+                    b.Property<DateTime>("LastModified")
+                        .ValueGeneratedOnAddOrUpdate();
+
+                    b.Property<string>("LastModifiedBy");
+
+                    b.Property<byte>("Rowversion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
                     b.HasKey("ResponsibleRoleId", "TaskId");
 
                     b.HasIndex("TaskId");
@@ -38,17 +54,21 @@ namespace GenericApp.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<DateTime>("LastModified");
+                    b.Property<DateTime>("LastModified")
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<string>("LastModifiedBy");
 
                     b.Property<string>("Name");
 
-                    b.Property<byte[]>("Rowversion");
+                    b.Property<byte>("Rowversion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.HasKey("Id");
 
@@ -60,19 +80,21 @@ namespace GenericApp.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<DateTime>("LastModified");
+                    b.Property<DateTime>("LastModified")
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<string>("LastModifiedBy");
 
                     b.Property<string>("Name");
 
-                    b.Property<byte[]>("Rowversion");
-
-                    b.Property<int>("Status");
+                    b.Property<byte>("Rowversion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<int>("WorkflowId");
 
@@ -88,15 +110,19 @@ namespace GenericApp.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<DateTime>("LastModified");
+                    b.Property<DateTime>("LastModified")
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<string>("LastModifiedBy");
 
-                    b.Property<byte[]>("Rowversion");
+                    b.Property<byte>("Rowversion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<int>("TaskId");
 
@@ -114,15 +140,19 @@ namespace GenericApp.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<DateTime>("LastModified");
+                    b.Property<DateTime>("LastModified")
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<string>("LastModifiedBy");
 
-                    b.Property<byte[]>("Rowversion");
+                    b.Property<byte>("Rowversion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<int>("TaskId");
 
@@ -140,15 +170,19 @@ namespace GenericApp.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<DateTime>("LastModified");
+                    b.Property<DateTime>("LastModified")
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<string>("LastModifiedBy");
 
-                    b.Property<byte[]>("Rowversion");
+                    b.Property<byte>("Rowversion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<int>("TaskId");
 
@@ -167,17 +201,21 @@ namespace GenericApp.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<DateTime>("LastModified");
+                    b.Property<DateTime>("LastModified")
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<string>("LastModifiedBy");
 
                     b.Property<string>("Name");
 
-                    b.Property<byte[]>("Rowversion");
+                    b.Property<byte>("Rowversion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<int>("Status");
 

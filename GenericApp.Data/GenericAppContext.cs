@@ -1,6 +1,7 @@
 ﻿using Tasks.Domain;
 using Tasks.Domain.Relationships.ManyToMany;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace GenericApp.Data
 {
@@ -18,15 +19,11 @@ namespace GenericApp.Data
         public DbSet<TaskOutput> TaskOutputs { get; set; }
         public DbSet<ResponsibleRole_Task> ResponsibleRole_Tasks { get; set; }
         #endregion
-
-        //public GenericAppContext()
-        //{ }
+                
 
         public GenericAppContext(DbContextOptions<GenericAppContext> options)
             :base (options)
-        {
-
-        }
+        {}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,7 +37,19 @@ namespace GenericApp.Data
             modelBuilder.Entity<ResponsibleRole_Task>().ToTable(name: "ResponsibleRole_Task", schema: "ManyToMany");          
 
             modelBuilder.Entity<ResponsibleRole_Task>()
-                .HasKey(k => new { k.ResponsibleRoleId, k.TaskId });           
+                .HasKey(k => new { k.ResponsibleRoleId, k.TaskId });
+
+     
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                //modelBuilder.Entity(entityType.Name).Property<bool>("IsDeleted");
+                modelBuilder.Entity(entityType.Name).Ignore("IsDirty");
+
+                modelBuilder.Entity(entityType.Name).Property<byte>("Rowversion").IsRowVersion().ValueGeneratedOnAddOrUpdate();
+                modelBuilder.Entity(entityType.Name).Property<DateTime>("Created").ValueGeneratedOnAdd();
+                modelBuilder.Entity(entityType.Name).Property<DateTime>("LastModified").ValueGeneratedOnAddOrUpdate();
+            }
 
             base.OnModelCreating(modelBuilder);
         }

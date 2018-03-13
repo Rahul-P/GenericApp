@@ -1,5 +1,6 @@
 ﻿using Tasks.Domain.Relationships.ManyToMany;
 using System.Collections.Generic;
+using DomainCommons;
 
 namespace Tasks.Domain
 {
@@ -12,7 +13,7 @@ namespace Tasks.Domain
             ResponsibleRole_Tasks = new List<ResponsibleRole_Task>();
         }
         public string Name { get; set; }
-        public int Status { get; set; }
+        //public int Status { get; set; } Will be part of Execution Engine.
 
         public TaskType TaskType { get; set; }
 

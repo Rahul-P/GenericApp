@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GenericApp.Data.Migrations
 {
-    public partial class _12March18_1_FirstEver : Migration
+    public partial class _13March18_1_FirstEver : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -27,7 +27,7 @@ namespace GenericApp.Data.Migrations
                     LastModified = table.Column<DateTime>(nullable: false),
                     LastModifiedBy = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
-                    Rowversion = table.Column<byte[]>(nullable: true)
+                    Rowversion = table.Column<byte>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,7 +46,7 @@ namespace GenericApp.Data.Migrations
                     LastModified = table.Column<DateTime>(nullable: false),
                     LastModifiedBy = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
-                    Rowversion = table.Column<byte[]>(nullable: true),
+                    Rowversion = table.Column<byte>(nullable: false),
                     Status = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -66,8 +66,7 @@ namespace GenericApp.Data.Migrations
                     LastModified = table.Column<DateTime>(nullable: false),
                     LastModifiedBy = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
-                    Rowversion = table.Column<byte[]>(nullable: true),
-                    Status = table.Column<int>(nullable: false),
+                    Rowversion = table.Column<byte>(nullable: false),
                     WorkflowId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -88,7 +87,13 @@ namespace GenericApp.Data.Migrations
                 columns: table => new
                 {
                     ResponsibleRoleId = table.Column<int>(nullable: false),
-                    TaskId = table.Column<int>(nullable: false)
+                    TaskId = table.Column<int>(nullable: false),
+                    Created = table.Column<DateTime>(nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Id = table.Column<int>(nullable: false),
+                    LastModified = table.Column<DateTime>(nullable: false),
+                    LastModifiedBy = table.Column<string>(nullable: true),
+                    Rowversion = table.Column<byte>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -120,7 +125,7 @@ namespace GenericApp.Data.Migrations
                     CreatedBy = table.Column<string>(nullable: true),
                     LastModified = table.Column<DateTime>(nullable: false),
                     LastModifiedBy = table.Column<string>(nullable: true),
-                    Rowversion = table.Column<byte[]>(nullable: true),
+                    Rowversion = table.Column<byte>(nullable: false),
                     TaskId = table.Column<int>(nullable: false),
                     TypeOfInput = table.Column<string>(nullable: true)
                 },
@@ -147,7 +152,7 @@ namespace GenericApp.Data.Migrations
                     CreatedBy = table.Column<string>(nullable: true),
                     LastModified = table.Column<DateTime>(nullable: false),
                     LastModifiedBy = table.Column<string>(nullable: true),
-                    Rowversion = table.Column<byte[]>(nullable: true),
+                    Rowversion = table.Column<byte>(nullable: false),
                     TaskId = table.Column<int>(nullable: false),
                     TypeOfOutput = table.Column<string>(nullable: true)
                 },
@@ -174,7 +179,7 @@ namespace GenericApp.Data.Migrations
                     CreatedBy = table.Column<string>(nullable: true),
                     LastModified = table.Column<DateTime>(nullable: false),
                     LastModifiedBy = table.Column<string>(nullable: true),
-                    Rowversion = table.Column<byte[]>(nullable: true),
+                    Rowversion = table.Column<byte>(nullable: false),
                     TaskId = table.Column<int>(nullable: false),
                     TypeOfTask = table.Column<string>(nullable: true)
                 },

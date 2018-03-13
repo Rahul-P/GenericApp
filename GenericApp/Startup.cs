@@ -29,7 +29,7 @@ namespace GenericApp
                 (options =>
                 {
                     options.UseSqlServer
-                    ("Server = DESKTOP-8E34R4N\\SQLEXPRESS; Database = GenericDBWeb; Trusted_Connection = True;");
+                    ("Server = DESKTOP-8E34R4N\\SQLEXPRESS; Database = GenericDB; Trusted_Connection = True;");
 
                 });       
 
