@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GenericApp.Data\GenericApp.Data.csproj" />
-    <ProjectReference Include="..\GenericApp.Domain\Tasks.Domain.csproj" />
   </ItemGroup>
 
 </Project>
