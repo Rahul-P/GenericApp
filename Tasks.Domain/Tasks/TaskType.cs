@@ -1,6 +1,6 @@
 ﻿using DomainCommons;
 
-namespace Tasks.Domain
+namespace GenericApp.Domain
 {
     public class TaskType : BaseDomain
     {

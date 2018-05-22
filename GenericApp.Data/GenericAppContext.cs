@@ -1,9 +1,9 @@
-﻿using Tasks.Domain;
-using Tasks.Domain.Relationships.ManyToMany;
+﻿using GenericApp.Domain;
+using GenericApp.Domain.Relationships.ManyToMany;
 using Microsoft.EntityFrameworkCore;
 using System;
 using DomainCommons;
-using Tasks.Domain.Tasks.Configuration;
+using GenericApp.Domain.Tasks.Configuration;
 
 namespace GenericApp.Data
 {

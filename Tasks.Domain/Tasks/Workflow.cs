@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using DomainCommons;
 
-namespace Tasks.Domain
+namespace GenericApp.Domain
 {
     public class Workflow : BaseDomain
     {

@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Tasks.Domain\Tasks.Domain.csproj" />
+    <ProjectReference Include="..\Tasks.Domain\GenericApp.Domain.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

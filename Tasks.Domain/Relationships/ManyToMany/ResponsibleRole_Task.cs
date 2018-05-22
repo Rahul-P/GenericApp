@@ -1,6 +1,6 @@
 ﻿using DomainCommons;
 
-namespace Tasks.Domain.Relationships.ManyToMany
+namespace GenericApp.Domain.Relationships.ManyToMany
 {
     public class ResponsibleRole_Task : BaseDomain
     {

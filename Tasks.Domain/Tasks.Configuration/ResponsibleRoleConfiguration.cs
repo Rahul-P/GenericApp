@@ -1,11 +1,8 @@
 ﻿
-namespace Tasks.Domain.Tasks.Configuration
+namespace GenericApp.Domain.Tasks.Configuration
 {
     using DomainCommons;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
 
     public class ResponsibleRoleConfiguration : BaseDomainConfiguration<ResponsibleRole>
     {

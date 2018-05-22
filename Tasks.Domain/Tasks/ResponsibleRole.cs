@@ -1,8 +1,8 @@
-﻿using Tasks.Domain.Relationships.ManyToMany;
+﻿using GenericApp.Domain.Relationships.ManyToMany;
 using System.Collections.Generic;
 using DomainCommons;
 
-namespace Tasks.Domain
+namespace GenericApp.Domain
 {
     public class ResponsibleRole : BaseDomain
     {
