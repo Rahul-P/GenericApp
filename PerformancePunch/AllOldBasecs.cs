@@ -8,617 +8,617 @@ namespace PerformancePunch
     {
     }
 
-using PerfGuard.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+//using PerfGuard.Core;
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
 
-namespace PerfGuard.TPL
-{
-    /// <summary>
-    /// 
-    /// Welcome to - PerfGuard a.k.a - Performance Guardian. 
-    /// 
-    /// This is the Asynchronous version of 'EdTask'
-    /// And is hence rightly called 'EdTaskAsync'
-    ///
-    /// !Bow down to the Mighty AWAIT!     
-    ///  
-    /// Are you excited - to write some very very Performant Parallel and Asynchronous Code?
-    /// Very Well good then let's begin...
-    /// 
-    /// Edtask is Education Task. This will invoke TPL on your behalf.
-    /// 
-    /// Read the (detailed) instruction on every Method to fully utilise them to their TRUE potential. 
-    /// 
-    /// 
-    /// *********************Gyann Vihar*********************
-    /// Task == object representing an ongoing computation.
-    /// Tasks are objects - you can check status, wait, harvest results, store exceptions (etc...).
-    /// 
-    /// EdTask denotes a unit of work, an ongoing computation.
-    /// EdTask is a CODE TASK.
-    /// 
-    /// YOUR JOB as DEVELOPER - is to create EdTasks (well, tasks!)
-    /// .NET's JOB is to execute tasks as efficiently as possible.
-    /// 
-    /// This class has been designed based on the work of Dr. Joe Hummel, PhD.
-    /// PhD in field of high-performance computing (.NET Platform).
-    /// 
-    /// Async and Parallel components of .NET 4 [ "->" denotes derived from or based on top off.]
-    /// Resource Manager -> Task Scheduler -> Task Parallel Library(TPL) -> Concurrent Data Structures/ Parallel LINQ etc.
-    /// 
-    /// Key Notes: (For Asynchronous programming: https://docs.microsoft.com/en-us/dotnet/csharp/async)
-    /// 1. Use await instead of Task.Wait or Task.Result
-    /// 2. Use await Task.WhenAny	instead of Task.WaitAny
-    /// 3. Use await Task.WhenAll	instead of Task.WaitAll
-    /// 
-    /// When a Task throws an Exception E - that goes unhandeled
-    /// 1. Task is terminated
-    /// 2. E is caught, saved as part of an AggregateException AE, and stored in task object's Exception property
-    /// 3. AE is re-thrown wuopn - .Wait, .Result or .WaitAll
-    /// *****************************************************   
-    /// 
-    /// </summary>
-    /// 
-    /// <seealso cref="PerfGuard.Statics.EdUsing">
-    ///     Wrap this class object in a Using Block.
-    /// </seealso>
-    public class EdTaskAsync : IDisposable
-    {
+//namespace PerfGuard.TPL
+//{
+    ///// <summary>
+    ///// 
+    ///// Welcome to - PerfGuard a.k.a - Performance Guardian. 
+    ///// 
+    ///// This is the Asynchronous version of 'EdTask'
+    ///// And is hence rightly called 'EdTaskAsync'
+    /////
+    ///// !Bow down to the Mighty AWAIT!     
+    /////  
+    ///// Are you excited - to write some very very Performant Parallel and Asynchronous Code?
+    ///// Very Well good then let's begin...
+    ///// 
+    ///// Edtask is Education Task. This will invoke TPL on your behalf.
+    ///// 
+    ///// Read the (detailed) instruction on every Method to fully utilise them to their TRUE potential. 
+    ///// 
+    ///// 
+    ///// *********************Gyann Vihar*********************
+    ///// Task == object representing an ongoing computation.
+    ///// Tasks are objects - you can check status, wait, harvest results, store exceptions (etc...).
+    ///// 
+    ///// EdTask denotes a unit of work, an ongoing computation.
+    ///// EdTask is a CODE TASK.
+    ///// 
+    ///// YOUR JOB as DEVELOPER - is to create EdTasks (well, tasks!)
+    ///// .NET's JOB is to execute tasks as efficiently as possible.
+    ///// 
+    ///// This class has been designed based on the work of Dr. Joe Hummel, PhD.
+    ///// PhD in field of high-performance computing (.NET Platform).
+    ///// 
+    ///// Async and Parallel components of .NET 4 [ "->" denotes derived from or based on top off.]
+    ///// Resource Manager -> Task Scheduler -> Task Parallel Library(TPL) -> Concurrent Data Structures/ Parallel LINQ etc.
+    ///// 
+    ///// Key Notes: (For Asynchronous programming: https://docs.microsoft.com/en-us/dotnet/csharp/async)
+    ///// 1. Use await instead of Task.Wait or Task.Result
+    ///// 2. Use await Task.WhenAny	instead of Task.WaitAny
+    ///// 3. Use await Task.WhenAll	instead of Task.WaitAll
+    ///// 
+    ///// When a Task throws an Exception E - that goes unhandeled
+    ///// 1. Task is terminated
+    ///// 2. E is caught, saved as part of an AggregateException AE, and stored in task object's Exception property
+    ///// 3. AE is re-thrown wuopn - .Wait, .Result or .WaitAll
+    ///// *****************************************************   
+    ///// 
+    ///// </summary>
+    ///// 
+    ///// <seealso cref="PerfGuard.Statics.EdUsing">
+    /////     Wrap this class object in a Using Block.
+    ///// </seealso>
+    //public class EdTaskAsync : IDisposable
+    //{
 
-        /// <summary>
-        /// 
-        /// 
-        /// </summary>
-        /// <param name="action">The code as Action that will be executed as a Task.</param>
-        /// <returns>True if the Task completed or False if the Task failed.</returns>
-        public async Task<Result> RunAsTaskAsync(Action action)
-        {
-            // Equivalent, but slightly more efficent... StartNew().
-            Task _task = Task.Factory.StartNew(() =>
-            {
-                action();
-            });
+    //    /// <summary>
+    //    /// 
+    //    /// 
+    //    /// </summary>
+    //    /// <param name="action">The code as Action that will be executed as a Task.</param>
+    //    /// <returns>True if the Task completed or False if the Task failed.</returns>
+    //    public async Task<Result> RunAsTaskAsync(Action action)
+    //    {
+    //        // Equivalent, but slightly more efficent... StartNew().
+    //        Task _task = Task.Factory.StartNew(() =>
+    //        {
+    //            action();
+    //        });
 
-            return await ProcessTaskAsync(_task);
-        }
+    //        return await ProcessTaskAsync(_task);
+    //    }
 
-        /// <summary>
-        /// Closure variables become shared variables - beware if those vars are read & written (race condition?).
-        /// 
-        /// </summary>        
-        /// <param name="arg1">String argument one to pass to action lamda.</param>
-        /// <param name="arg2">String argument two to pass to action lamda.</param>
-        /// <param name="action">The code as Action that will be executed as a Task.</param>
-        /// <returns>True if the Task completed or False if the Task failed.</returns>
-        public async Task<Result> RunAsTaskAsync(string arg1, string arg2, Action<string, string> action)
-        {
-            // Equivalent, but slightly more efficent... StartNew().
-            Task _task = Task.Factory.StartNew(() =>
-            {
-                action(arg1, arg2);
-            });
+    //    /// <summary>
+    //    /// Closure variables become shared variables - beware if those vars are read & written (race condition?).
+    //    /// 
+    //    /// </summary>        
+    //    /// <param name="arg1">String argument one to pass to action lamda.</param>
+    //    /// <param name="arg2">String argument two to pass to action lamda.</param>
+    //    /// <param name="action">The code as Action that will be executed as a Task.</param>
+    //    /// <returns>True if the Task completed or False if the Task failed.</returns>
+    //    public async Task<Result> RunAsTaskAsync(string arg1, string arg2, Action<string, string> action)
+    //    {
+    //        // Equivalent, but slightly more efficent... StartNew().
+    //        Task _task = Task.Factory.StartNew(() =>
+    //        {
+    //            action(arg1, arg2);
+    //        });
 
-            return await ProcessTaskAsync(_task);
-        }
-
-
-        public Task<Result> SampleKIllingAsync(string arg1, string arg2, Action<string, string> action)
-        {
-            // Equivalent, but slightly more efficent... StartNew().
-            Task _task = Task.Factory.StartNew(() =>
-            {
-                action(arg1, arg2);
-            });
-
-            return ProcessTaskAsync(_task);
-        }
-
-        #region Patterns
-
-        ///*
-        // * 
-        // * We need the following Pattern(s)
-        // * 
-        // * 1.1  Wait All Tasks (When All)
-        // * 1.2  Wait All Tasks of Result<TResult> (When All)
-        // * 1.3  Wait All Tasks (When All) - With Cancellation Token, Task Priorities, 
-        // *      Parent-child tasks and Parametrer passing.
-        // * 1.4  Wait All Tasks of Result<TResult> (When All) - With Cancellation Token, Task Priorities, 
-        // *      Parent-child tasks and Parametrer passing.
-        // * 
-        // * 2.1  Wait Any Task (When Any)
-        // * 2.2  Wait Any Task of Result<TResult> (When Any)
-        // * 2.3   Wait Any Task (When Any) - With Cancellation Token, Task Priorities, 
-        // *      Parent-child tasks and Parametrer passing.
-        // * 2.4  Wait Any Task of Result<TResult> (When Any) - With Cancellation Token, Task Priorities, 
-        // *      Parent-child tasks and Parametrer passing.
-        // * 
-        // * 3.1  Wait All Tasks One-by-One (When Any) [Remove from for-each]
-        // * 3.2  Wait All Tasks One-by-One of Result<TResult> (When Any) [Remove from for-each]   
-        // * 3.3  Wait All Tasks One-by-One (When Any) [Remove from for-each] - With Cancellation Token, Task Priorities, 
-        // *      Parent-child tasks and Parametrer passing.
-        // * 3.4  Wait All Tasks One-by-One of Result<TResult> (When Any) [Remove from for-each] - With Cancellation Token, 
-        // *      Task Priorities, Parent-child tasks and Parametrer passing.
-        // * 
-        // * Continuation Tasks - Data Flow Tasks Pattern
-        // * 1. Many-to-One
-        // *    Task.Factory.ContinueWhenAll(tasks, (setOfTasks => { //Code here to run after the Array of tasks has completed });)
-        // *    
-        // * 2. Any-to-One
-        // *    Task.Factory.ContinueWhenAny(tasks, (firstTask => { //Code here to run after the First has completed });)
-        // * 
-        // */
+    //        return await ProcessTaskAsync(_task);
+    //    }
 
 
-        #region Pattern Implementaion from: 1 to 1.4
+    //    public Task<Result> SampleKIllingAsync(string arg1, string arg2, Action<string, string> action)
+    //    {
+    //        // Equivalent, but slightly more efficent... StartNew().
+    //        Task _task = Task.Factory.StartNew(() =>
+    //        {
+    //            action(arg1, arg2);
+    //        });
 
-        /// <summary>   
-        /// 
-        /// WaitForAllTasks_ToComplete - Pass a List of Tasks and Wait for them to finish.
-        /// All Tasks will be executed Parallely. Code will return to calling method once all have completed.
-        ///
-        /// </summary>
-        /// 
-        /// <remarks>
-        /// Pattern Implementation : 1.1 -> Wait All Tasks (When All).
-        /// </remarks>
-        public void WaitForAllTasks_ToComplete()
-        {
+    //        return ProcessTaskAsync(_task);
+    //    }
 
-        }
+    //    #region Patterns
 
-        #endregion 
-
-
-        #region Pattern Implementaion from: 2 to 2.4
-
-        /// <summary>   
-        /// 
-        /// WaitForAllTasks_ToComplete - Pass a List of Tasks and Wait for them to finish.
-        /// All Tasks will be executed Parallely. Code will return to calling method once all have completed.
-        ///
-        /// </summary>
-        /// 
-        /// <remarks>
-        /// Pattern Implementation : 2.1 -> Wait Any Task (When Any)
-        /// </remarks>
-        public async Task<Result<TResult>> WaitForAnyTask_ToComplete<TResult>(List<Task<TResult>> tasks)
-        {            
-            string[] _exceptions = new string[] { };
-
-            if (tasks != null && tasks.Count > 0)
-            {
-                while (tasks.Count > 0)
-                {
-                    var completedTask = await Task.WhenAny(tasks); // No Exception thrown here @WhenAny()
-                    try
-                    {
-                        if (completedTask.Exception == null)
-                            return Result.Ok(completedTask.Result); // send Successfully Completed Task, don't get emotional.                        
-
-                        tasks = tasks.Where(w => w != completedTask).ToList();
-                    }
-                    catch (AggregateException aggregateException)
-                    {
-                        // Record Exception using Diagnostics
-                        _exceptions = Handle_AggregateException(aggregateException).ToArray();
-                    }
-                    catch (Exception exception)
-                    {
-                        // Record Exception using Diagnostics
-                        _exceptions = Handle_Exception(exception).ToArray();
-                    }
-                    tasks.Remove(completedTask);
-                }
-            }
-            // All Tasks Failed
-            return Result.Fail<TResult>(string.Empty, "All tasks failed.");
-        }
-
-        #endregion
-
-        #region Pattern Implementaion from: 3 to 3.4
-
-        /// <summary>   
-        /// 
-        /// WaitForAllTasks_ToComplete - Pass a List of Tasks and Wait for them to finish.
-        /// All Tasks will be executed Parallely. Code will return to calling method once all have completed.
-        ///
-        /// </summary>
-        /// 
-        /// <returns>
-        /// List<Task> - the list of tasks that completed Successfully. 
-        /// Failed Tasks are ignored, and there details are recorded via appropriate logging mechanism.        /// 
-        /// </returns>
-        /// 
-        /// <remarks>
-        /// Pattern Implementation : 3.1 -> Wait All Tasks One-by-One (When Any) [Remove from for-each]
-        /// </remarks>
-        public async Task<List<Task>> WaitForAllTasks_OneByOne_ToComplete_Async(List<Task> tasks)
-        {
-            List<Task> successfullyCompletedTasks = new List<Task>();
-            string[] _exceptions = new string[] { };
-            if (tasks != null && tasks.Count > 0)
-            {                           
-                while (tasks.Count > 0)
-                {                    
-                    var completedTask = await Task.WhenAny(tasks); // No Exception thrown here @WhenAny()
-                    try
-                    {
-                        completedTask.Wait(); // Exception will be re-thrown here, we are observing Exception.
-                        successfullyCompletedTasks.Add(completedTask); // Add Successfully Completed Task, don't get emotional.                        
-                    }
-                    catch (AggregateException aggregateException)
-                    {
-                        // Record Exception using Diagnostics
-                        _exceptions = Handle_AggregateException(aggregateException).ToArray();
-                    }
-                    catch (Exception exception)
-                    {
-                        // Record Exception using Diagnostics
-                        _exceptions = Handle_Exception(exception).ToArray();
-                    }
-                    tasks.Remove(completedTask);
-                }
-            }
-            return successfullyCompletedTasks;
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Do not use.
-        /// </summary>
-        /// <param name="tasks"></param>
-        public void WaitForFirstTask_ToComplete(List<Task> tasks)
-        {
-            string[] _exceptions = new string[] { };
-            if (tasks != null && tasks.Count > 0)
-            {
-                try
-                {
-                    Task.WhenAny(tasks);                                              
-                }
-                catch (AggregateException aggregateException)
-                {
-                    // Record Exception using Diagnostics
-                    _exceptions = Handle_AggregateException(aggregateException).ToArray();
-                }
-                catch (Exception exception)
-                {
-                    // Record Exception using Diagnostics
-                    _exceptions = Handle_Exception(exception).ToArray();
-                }
-            }
-        }
+    //    ///*
+    //    // * 
+    //    // * We need the following Pattern(s)
+    //    // * 
+    //    // * 1.1  Wait All Tasks (When All)
+    //    // * 1.2  Wait All Tasks of Result<TResult> (When All)
+    //    // * 1.3  Wait All Tasks (When All) - With Cancellation Token, Task Priorities, 
+    //    // *      Parent-child tasks and Parametrer passing.
+    //    // * 1.4  Wait All Tasks of Result<TResult> (When All) - With Cancellation Token, Task Priorities, 
+    //    // *      Parent-child tasks and Parametrer passing.
+    //    // * 
+    //    // * 2.1  Wait Any Task (When Any)
+    //    // * 2.2  Wait Any Task of Result<TResult> (When Any)
+    //    // * 2.3   Wait Any Task (When Any) - With Cancellation Token, Task Priorities, 
+    //    // *      Parent-child tasks and Parametrer passing.
+    //    // * 2.4  Wait Any Task of Result<TResult> (When Any) - With Cancellation Token, Task Priorities, 
+    //    // *      Parent-child tasks and Parametrer passing.
+    //    // * 
+    //    // * 3.1  Wait All Tasks One-by-One (When Any) [Remove from for-each]
+    //    // * 3.2  Wait All Tasks One-by-One of Result<TResult> (When Any) [Remove from for-each]   
+    //    // * 3.3  Wait All Tasks One-by-One (When Any) [Remove from for-each] - With Cancellation Token, Task Priorities, 
+    //    // *      Parent-child tasks and Parametrer passing.
+    //    // * 3.4  Wait All Tasks One-by-One of Result<TResult> (When Any) [Remove from for-each] - With Cancellation Token, 
+    //    // *      Task Priorities, Parent-child tasks and Parametrer passing.
+    //    // * 
+    //    // * Continuation Tasks - Data Flow Tasks Pattern
+    //    // * 1. Many-to-One
+    //    // *    Task.Factory.ContinueWhenAll(tasks, (setOfTasks => { //Code here to run after the Array of tasks has completed });)
+    //    // *    
+    //    // * 2. Any-to-One
+    //    // *    Task.Factory.ContinueWhenAny(tasks, (firstTask => { //Code here to run after the First has completed });)
+    //    // * 
+    //    // */
 
 
-        /// <summary>
-        /// From a list when you need Result of First Completed Task.
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="tasks"></param>
-        /// <returns></returns>
-        public Result<TResult> WaitForFirstTask_ToComplete<TResult>(List<Task<Result<TResult>>> tasks)
-        {
-            string[] _exceptions = new string[] { };
-            Result<TResult> completedTask = null;
+    //    #region Pattern Implementaion from: 1 to 1.4
 
-            if (tasks != null && tasks.Count > 0)
-            {
-                try
-                {
-                    var finishedTask = Task.WhenAny(tasks);
-                    completedTask = finishedTask.Result.Result;
-             }
-                catch (AggregateException aggregateException)
-                {
-                    // Record Exception using Diagnostics
-                    _exceptions = Handle_AggregateException(aggregateException).ToArray();
-                }
-                catch (Exception exception)
-                {
-                    // Record Exception using Diagnostics
-                    _exceptions = Handle_Exception(exception).ToArray();
-                }
-            }
-            return (completedTask == null)
-                ? Result.Fail<TResult>
-                    ("Opps! we dropped the ball. Our army of monkies is on this, meanwhile can you please try again soon.",
-                    string.Concat(_exceptions))
-                : Result.Ok<TResult>(completedTask.Value);
-        }
+    //    /// <summary>   
+    //    /// 
+    //    /// WaitForAllTasks_ToComplete - Pass a List of Tasks and Wait for them to finish.
+    //    /// All Tasks will be executed Parallely. Code will return to calling method once all have completed.
+    //    ///
+    //    /// </summary>
+    //    /// 
+    //    /// <remarks>
+    //    /// Pattern Implementation : 1.1 -> Wait All Tasks (When All).
+    //    /// </remarks>
+    //    public void WaitForAllTasks_ToComplete()
+    //    {
+
+    //    }
+
+    //    #endregion 
 
 
+    //    #region Pattern Implementaion from: 2 to 2.4
 
-        public async Task WaitForAllTasksToCompleteAsync(List<Task> tasks)
-        {
-            string[] _exceptions = new string[] { };
-            if (tasks != null && tasks.Count > 0)
-            {
-                try
-                {
-                    await Task.WhenAll(tasks.ToArray());
-                }
-                catch (AggregateException aggregateException)
-                {
-                    // Record Exception using Diagnostics
-                    _exceptions = Handle_AggregateException(aggregateException).ToArray();
-                }
-                catch (Exception exception)
-                {
-                    // Record Exception using Diagnostics
-                    _exceptions = Handle_Exception(exception).ToArray();
-                }
+    //    /// <summary>   
+    //    /// 
+    //    /// WaitForAllTasks_ToComplete - Pass a List of Tasks and Wait for them to finish.
+    //    /// All Tasks will be executed Parallely. Code will return to calling method once all have completed.
+    //    ///
+    //    /// </summary>
+    //    /// 
+    //    /// <remarks>
+    //    /// Pattern Implementation : 2.1 -> Wait Any Task (When Any)
+    //    /// </remarks>
+    //    public async Task<Result<TResult>> WaitForAnyTask_ToComplete<TResult>(List<Task<TResult>> tasks)
+    //    {            
+    //        string[] _exceptions = new string[] { };
 
-                // Here some code...
-            }
-        }
+    //        if (tasks != null && tasks.Count > 0)
+    //        {
+    //            while (tasks.Count > 0)
+    //            {
+    //                var completedTask = await Task.WhenAny(tasks); // No Exception thrown here @WhenAny()
+    //                try
+    //                {
+    //                    if (completedTask.Exception == null)
+    //                        return Result.Ok(completedTask.Result); // send Successfully Completed Task, don't get emotional.                        
 
-        /// <summary>
-        /// WaitForAllTasks_OneByOne_ToComplete: Use this pattern when -
-        /// 
-        /// 1. Some may fail - discard/retry
-        /// 2. Overlap computation with result processing - aka hide latency.
-        /// 
-        /// 
-        /// </summary>
-        /// <param name="tasks"></param>
-        public void WaitForAllTasks_OneByOne_ToComplete1(List<Task> tasks)
-        {
-            string[] _exceptions = new string[] { };
-            if (tasks != null && tasks.Count > 0)
-            {
-                try
-                {
-                    while (tasks.Count > 0)
-                    {
-                        var task = Task.WhenAny(tasks);
+    //                    tasks = tasks.Where(w => w != completedTask).ToList();
+    //                }
+    //                catch (AggregateException aggregateException)
+    //                {
+    //                    // Record Exception using Diagnostics
+    //                    _exceptions = Handle_AggregateException(aggregateException).ToArray();
+    //                }
+    //                catch (Exception exception)
+    //                {
+    //                    // Record Exception using Diagnostics
+    //                    _exceptions = Handle_Exception(exception).ToArray();
+    //                }
+    //                tasks.Remove(completedTask);
+    //            }
+    //        }
+    //        // All Tasks Failed
+    //        return Result.Fail<TResult>(string.Empty, "All tasks failed.");
+    //    }
 
-                        tasks.Remove(task);
-                    }
-                }
-                catch (AggregateException aggregateException)
-                {
-                    // Record Exception using Diagnostics
-                    _exceptions = Handle_AggregateException(aggregateException).ToArray();
-                }
-                catch (Exception exception)
-                {
-                    // Record Exception using Diagnostics
-                    _exceptions = Handle_Exception(exception).ToArray();
-                }
+    //    #endregion
 
+    //    #region Pattern Implementaion from: 3 to 3.4
 
-            }
-        }
+    //    /// <summary>   
+    //    /// 
+    //    /// WaitForAllTasks_ToComplete - Pass a List of Tasks and Wait for them to finish.
+    //    /// All Tasks will be executed Parallely. Code will return to calling method once all have completed.
+    //    ///
+    //    /// </summary>
+    //    /// 
+    //    /// <returns>
+    //    /// List<Task> - the list of tasks that completed Successfully. 
+    //    /// Failed Tasks are ignored, and there details are recorded via appropriate logging mechanism.        /// 
+    //    /// </returns>
+    //    /// 
+    //    /// <remarks>
+    //    /// Pattern Implementation : 3.1 -> Wait All Tasks One-by-One (When Any) [Remove from for-each]
+    //    /// </remarks>
+    //    public async Task<List<Task>> WaitForAllTasks_OneByOne_ToComplete_Async(List<Task> tasks)
+    //    {
+    //        List<Task> successfullyCompletedTasks = new List<Task>();
+    //        string[] _exceptions = new string[] { };
+    //        if (tasks != null && tasks.Count > 0)
+    //        {                           
+    //            while (tasks.Count > 0)
+    //            {                    
+    //                var completedTask = await Task.WhenAny(tasks); // No Exception thrown here @WhenAny()
+    //                try
+    //                {
+    //                    completedTask.Wait(); // Exception will be re-thrown here, we are observing Exception.
+    //                    successfullyCompletedTasks.Add(completedTask); // Add Successfully Completed Task, don't get emotional.                        
+    //                }
+    //                catch (AggregateException aggregateException)
+    //                {
+    //                    // Record Exception using Diagnostics
+    //                    _exceptions = Handle_AggregateException(aggregateException).ToArray();
+    //                }
+    //                catch (Exception exception)
+    //                {
+    //                    // Record Exception using Diagnostics
+    //                    _exceptions = Handle_Exception(exception).ToArray();
+    //                }
+    //                tasks.Remove(completedTask);
+    //            }
+    //        }
+    //        return successfullyCompletedTasks;
+    //    }
 
-        #endregion
+    //    #endregion
 
-
-        #region Waiting for Task(s) to Complete
-
-        private async Task<Result> ProcessTaskAsync(Task t)
-        {
-            string[] _exceptions = new string[] { };         
-            try
-            {
-                await t;
-                t.Wait();  // Make sure we have a result by now.
-            }
-            catch (AggregateException aggregateException)
-            {
-                // Record Exception using Diagnostics
-                _exceptions = Handle_AggregateException(aggregateException).ToArray();
-            }
-            catch (Exception exception)
-            {
-                // Record Exception using Diagnostics
-                _exceptions = Handle_Exception(exception).ToArray();
-            }
-
-            return (_exceptions.Length > 0)
-                ? Result.Fail
-                    ("Opps! we dropped the ball. Our army of monkies is on this, meanwhile can you please try again soon.",
-                    string.Concat(_exceptions))
-                : Result.Ok();
-        }
-
-        private async Task<Result<TResult>> ProcessTaskAsync<TResult>(Task<TResult> t)
-        {
-            string[] _exceptions = new string[] { };
-            TResult taskResult = default(TResult);
-            try
-            {
-                await t;
-                taskResult = t.Result;  // Block till we get a Result or Exception.
-            }
-            catch (AggregateException aggregateException)
-            {
-                // Record Exception using Diagnostics
-                _exceptions = Handle_AggregateException(aggregateException).ToArray();
-            }
-            catch (Exception exception)
-            {
-                // Record Exception using Diagnostics
-                _exceptions = Handle_Exception(exception).ToArray();
-            }
-
-            return (_exceptions.Length > 0)
-                ? Result.Fail<TResult>
-                    ("Opps! we dropped the ball. Our army of monkies is on this, meanwhile can you please try again soon.",
-                    string.Concat(_exceptions))
-                : Result.Ok<TResult>(taskResult);
-        }
-
-        #endregion
+    //    /// <summary>
+    //    /// Do not use.
+    //    /// </summary>
+    //    /// <param name="tasks"></param>
+    //    public void WaitForFirstTask_ToComplete(List<Task> tasks)
+    //    {
+    //        string[] _exceptions = new string[] { };
+    //        if (tasks != null && tasks.Count > 0)
+    //        {
+    //            try
+    //            {
+    //                Task.WhenAny(tasks);                                              
+    //            }
+    //            catch (AggregateException aggregateException)
+    //            {
+    //                // Record Exception using Diagnostics
+    //                _exceptions = Handle_AggregateException(aggregateException).ToArray();
+    //            }
+    //            catch (Exception exception)
+    //            {
+    //                // Record Exception using Diagnostics
+    //                _exceptions = Handle_Exception(exception).ToArray();
+    //            }
+    //        }
+    //    }
 
 
-        #region Exception Handling - AggregateException and Exception(Ss)
+    //    /// <summary>
+    //    /// From a list when you need Result of First Completed Task.
+    //    /// </summary>
+    //    /// <typeparam name="TResult"></typeparam>
+    //    /// <param name="tasks"></param>
+    //    /// <returns></returns>
+    //    public Result<TResult> WaitForFirstTask_ToComplete<TResult>(List<Task<Result<TResult>>> tasks)
+    //    {
+    //        string[] _exceptions = new string[] { };
+    //        Result<TResult> completedTask = null;
 
-        private IList<string> Handle_AggregateException(AggregateException ae)
-        {
-            IList<string> errors = new List<string>();
+    //        if (tasks != null && tasks.Count > 0)
+    //        {
+    //            try
+    //            {
+    //                var finishedTask = Task.WhenAny(tasks);
+    //                completedTask = finishedTask.Result.Result;
+    //         }
+    //            catch (AggregateException aggregateException)
+    //            {
+    //                // Record Exception using Diagnostics
+    //                _exceptions = Handle_AggregateException(aggregateException).ToArray();
+    //            }
+    //            catch (Exception exception)
+    //            {
+    //                // Record Exception using Diagnostics
+    //                _exceptions = Handle_Exception(exception).ToArray();
+    //            }
+    //        }
+    //        return (completedTask == null)
+    //            ? Result.Fail<TResult>
+    //                ("Opps! we dropped the ball. Our army of monkies is on this, meanwhile can you please try again soon.",
+    //                string.Concat(_exceptions))
+    //            : Result.Ok<TResult>(completedTask.Value);
+    //    }
 
-            ae.Flatten();
-            foreach (var ex in ae.InnerExceptions)
-            {
-                // string taskWasCancelled = string.Empty;
-                //if (ex.InnerException is OperationCanceledException)
-                //    taskWasCancelled = "Task was cancelled";
 
-                errors.Add(ex.Message != null ? ex.Message : "No exception message found/set.");
-                // Record string in Windows Event Log via Diagnostics.
-            }
 
-            if (errors.Count == 0)
-                errors.Add("No exception message found/set.");
+    //    public async Task WaitForAllTasksToCompleteAsync(List<Task> tasks)
+    //    {
+    //        string[] _exceptions = new string[] { };
+    //        if (tasks != null && tasks.Count > 0)
+    //        {
+    //            try
+    //            {
+    //                await Task.WhenAll(tasks.ToArray());
+    //            }
+    //            catch (AggregateException aggregateException)
+    //            {
+    //                // Record Exception using Diagnostics
+    //                _exceptions = Handle_AggregateException(aggregateException).ToArray();
+    //            }
+    //            catch (Exception exception)
+    //            {
+    //                // Record Exception using Diagnostics
+    //                _exceptions = Handle_Exception(exception).ToArray();
+    //            }
 
-            return errors;
-        }
+    //            // Here some code...
+    //        }
+    //    }
 
-        private IList<string> Handle_Exception(Exception e)
-        {
-            IList<string> errors = new List<string>();
+    //    /// <summary>
+    //    /// WaitForAllTasks_OneByOne_ToComplete: Use this pattern when -
+    //    /// 
+    //    /// 1. Some may fail - discard/retry
+    //    /// 2. Overlap computation with result processing - aka hide latency.
+    //    /// 
+    //    /// 
+    //    /// </summary>
+    //    /// <param name="tasks"></param>
+    //    public void WaitForAllTasks_OneByOne_ToComplete1(List<Task> tasks)
+    //    {
+    //        string[] _exceptions = new string[] { };
+    //        if (tasks != null && tasks.Count > 0)
+    //        {
+    //            try
+    //            {
+    //                while (tasks.Count > 0)
+    //                {
+    //                    var task = Task.WhenAny(tasks);
 
-            // Record the following - Exception and Inner Exception details                        
-            errors.Add((e.InnerException != null) ? e.InnerException?.Message
-                : "Inner Exception is null");
+    //                    tasks.Remove(task);
+    //                }
+    //            }
+    //            catch (AggregateException aggregateException)
+    //            {
+    //                // Record Exception using Diagnostics
+    //                _exceptions = Handle_AggregateException(aggregateException).ToArray();
+    //            }
+    //            catch (Exception exception)
+    //            {
+    //                // Record Exception using Diagnostics
+    //                _exceptions = Handle_Exception(exception).ToArray();
+    //            }
 
-            return errors;
-        }
 
-        #endregion
+    //        }
+    //    }
 
-        #region IDisposable Support
+    //    #endregion
 
-        private bool disposedValue = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                disposedValue = true;
-            }
-        }
 
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+    //    #region Waiting for Task(s) to Complete
 
-        #endregion
-    }
+    //    private async Task<Result> ProcessTaskAsync(Task t)
+    //    {
+    //        string[] _exceptions = new string[] { };         
+    //        try
+    //        {
+    //            await t;
+    //            t.Wait();  // Make sure we have a result by now.
+    //        }
+    //        catch (AggregateException aggregateException)
+    //        {
+    //            // Record Exception using Diagnostics
+    //            _exceptions = Handle_AggregateException(aggregateException).ToArray();
+    //        }
+    //        catch (Exception exception)
+    //        {
+    //            // Record Exception using Diagnostics
+    //            _exceptions = Handle_Exception(exception).ToArray();
+    //        }
+
+    //        return (_exceptions.Length > 0)
+    //            ? Result.Fail
+    //                ("Opps! we dropped the ball. Our army of monkies is on this, meanwhile can you please try again soon.",
+    //                string.Concat(_exceptions))
+    //            : Result.Ok();
+    //    }
+
+    //    private async Task<Result<TResult>> ProcessTaskAsync<TResult>(Task<TResult> t)
+    //    {
+    //        string[] _exceptions = new string[] { };
+    //        TResult taskResult = default(TResult);
+    //        try
+    //        {
+    //            await t;
+    //            taskResult = t.Result;  // Block till we get a Result or Exception.
+    //        }
+    //        catch (AggregateException aggregateException)
+    //        {
+    //            // Record Exception using Diagnostics
+    //            _exceptions = Handle_AggregateException(aggregateException).ToArray();
+    //        }
+    //        catch (Exception exception)
+    //        {
+    //            // Record Exception using Diagnostics
+    //            _exceptions = Handle_Exception(exception).ToArray();
+    //        }
+
+    //        return (_exceptions.Length > 0)
+    //            ? Result.Fail<TResult>
+    //                ("Opps! we dropped the ball. Our army of monkies is on this, meanwhile can you please try again soon.",
+    //                string.Concat(_exceptions))
+    //            : Result.Ok<TResult>(taskResult);
+    //    }
+
+    //    #endregion
+
+
+    //    #region Exception Handling - AggregateException and Exception(Ss)
+
+    //    private IList<string> Handle_AggregateException(AggregateException ae)
+    //    {
+    //        IList<string> errors = new List<string>();
+
+    //        ae.Flatten();
+    //        foreach (var ex in ae.InnerExceptions)
+    //        {
+    //            // string taskWasCancelled = string.Empty;
+    //            //if (ex.InnerException is OperationCanceledException)
+    //            //    taskWasCancelled = "Task was cancelled";
+
+    //            errors.Add(ex.Message != null ? ex.Message : "No exception message found/set.");
+    //            // Record string in Windows Event Log via Diagnostics.
+    //        }
+
+    //        if (errors.Count == 0)
+    //            errors.Add("No exception message found/set.");
+
+    //        return errors;
+    //    }
+
+    //    private IList<string> Handle_Exception(Exception e)
+    //    {
+    //        IList<string> errors = new List<string>();
+
+    //        // Record the following - Exception and Inner Exception details                        
+    //        errors.Add((e.InnerException != null) ? e.InnerException?.Message
+    //            : "Inner Exception is null");
+
+    //        return errors;
+    //    }
+
+    //    #endregion
+
+    //    #region IDisposable Support
+
+    //    private bool disposedValue = false;
+    //    protected virtual void Dispose(bool disposing)
+    //    {
+    //        if (!disposedValue)
+    //        {
+    //            disposedValue = true;
+    //        }
+    //    }
+
+    //    // This code added to correctly implement the disposable pattern.
+    //    public void Dispose()
+    //    {
+    //        Dispose(true);
+    //        GC.SuppressFinalize(this);
+    //    }
+
+    //    #endregion
+    //}
 }
 
 
 
-using System;
-using System.Threading.Tasks;
+//using System;
+//using System.Threading.Tasks;
 
-namespace PerfGuard.TPL
-{
+//namespace PerfGuard.TPL
+//{
 
-    ///<summary>
-    /// Facade Tasks - Pronounced as FASssAaDE Tasks.
-    /// Facade Task lack of Explicit code during task creation. 
-    /// It is assumed that the computation is specified elsewhere and is already running such as a Network request.
-    /// 
-    /// Why provide a Facade Task?
-    /// To provide a common object model (a.k.a TASK) for interfacing with both Asynchronous and Parallel Operations.
-    /// 
-    /// EdFacadeTask is a Facade Task.
-    /// This will wrap all calls going out of letitgos applications to 3rd parties REST APIs. 
-    /// </summary>
-    public class EdFacadeTask : IDisposable
-    {
-        ///<summary>
-        /// 
-        /// 
-        /// </summary> 
-        /// <param name="action">The code as Action that will be executed as a Task.</param>
-        /// <returns>TResult - Object of TResult.</returns>
-        public Task RunAsFacadeTask<TResult>(object state)
-        {
-            using (this)
-            {
-                TaskCompletionSource<TResult> tc = new TaskCompletionSource<TResult>(state);
-                return tc.Task;
-            }
-        }
+//    ///<summary>
+//    /// Facade Tasks - Pronounced as FASssAaDE Tasks.
+//    /// Facade Task lack of Explicit code during task creation. 
+//    /// It is assumed that the computation is specified elsewhere and is already running such as a Network request.
+//    /// 
+//    /// Why provide a Facade Task?
+//    /// To provide a common object model (a.k.a TASK) for interfacing with both Asynchronous and Parallel Operations.
+//    /// 
+//    /// EdFacadeTask is a Facade Task.
+//    /// This will wrap all calls going out of letitgos applications to 3rd parties REST APIs. 
+//    /// </summary>
+//    public class EdFacadeTask : IDisposable
+//    {
+//        ///<summary>
+//        /// 
+//        /// 
+//        /// </summary> 
+//        /// <param name="action">The code as Action that will be executed as a Task.</param>
+//        /// <returns>TResult - Object of TResult.</returns>
+//        public Task RunAsFacadeTask<TResult>(object state)
+//        {
+//            using (this)
+//            {
+//                TaskCompletionSource<TResult> tc = new TaskCompletionSource<TResult>(state);
+//                return tc.Task;
+//            }
+//        }
 
-        #region IDisposable Support
+//        #region IDisposable Support
 
-        private bool disposedValue = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                disposedValue = true;
-            }
-        }
+//        private bool disposedValue = false;
+//        protected virtual void Dispose(bool disposing)
+//        {
+//            if (!disposedValue)
+//            {
+//                disposedValue = true;
+//            }
+//        }
 
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+//        // This code added to correctly implement the disposable pattern.
+//        public void Dispose()
+//        {
+//            Dispose(true);
+//            GC.SuppressFinalize(this);
+//        }
 
-        #endregion
-    }
-}
-
-
-using System;
-using System.Threading.Tasks;
-
-namespace PerfGuard.TPL
-{
-    public class CreateTaskShell : IDisposable
-    {
-
-        // Create Tasks
+//        #endregion
+//    }
+//}
 
 
-        public  Task ActionTaskWith2Params(string arg1, string arg2, Action<string, string> action)
-        {
-            // Equivalent, but slightly more efficent... StartNew().
-            Task _task = Task.Factory.StartNew(() =>
-            {
-                action(arg1, arg2);
-            });
+//using System;
+//using System.Threading.Tasks;
 
-            return _task;
-        }
+//namespace PerfGuard.TPL
+//{
+//    public class CreateTaskShell : IDisposable
+//    {
+
+//        // Create Tasks
 
 
-        #region IDisposable Support
+//        public  Task ActionTaskWith2Params(string arg1, string arg2, Action<string, string> action)
+//        {
+//            // Equivalent, but slightly more efficent... StartNew().
+//            Task _task = Task.Factory.StartNew(() =>
+//            {
+//                action(arg1, arg2);
+//            });
 
-        private bool disposedValue = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                disposedValue = true;
-            }
-        }
+//            return _task;
+//        }
 
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
-        #endregion
-    }
-}
+//        #region IDisposable Support
+
+//        private bool disposedValue = false;
+//        protected virtual void Dispose(bool disposing)
+//        {
+//            if (!disposedValue)
+//            {
+//                disposedValue = true;
+//            }
+//        }
+
+//        // This code added to correctly implement the disposable pattern.
+//        public void Dispose()
+//        {
+//            Dispose(true);
+//            GC.SuppressFinalize(this);
+//        }
+
+//        #endregion
+//    }
+//}
 
     //using System;
 
@@ -2946,4 +2946,4 @@ namespace PerfGuard.TPL
 
 //        }
 //    }
-}
+//}
