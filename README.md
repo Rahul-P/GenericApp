@@ -26,3 +26,6 @@ https://stackoverflow.com/questions/18901720/get-column-datatype-from-entity-fra
 https://github.com/aspnet/EntityFrameworkCore/issues/7717
 
 
+
+select * FROM information_schema.columns
+order by TABLE_SCHEMA asc
