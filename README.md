@@ -21,3 +21,8 @@ SELECT table_schema, table_name, column_name, data_type, character_maximum_lengt
   
   
   
+https://stackoverflow.com/questions/18901720/get-column-datatype-from-entity-framework-entity
+
+https://github.com/aspnet/EntityFrameworkCore/issues/7717
+
+
