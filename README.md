@@ -33,3 +33,7 @@ https://github.com/aspnet/EntityFrameworkCore/blob/master/src/EFCore.SqlServer/S
 
 select * FROM information_schema.columns
 order by TABLE_SCHEMA asc
+
+
+https://stackoverflow.com/questions/434864/how-to-check-if-connection-string-is-valid  -- check DB is Valid connection.
+https://social.msdn.microsoft.com/Forums/vstudio/en-US/3af721df-03ce-4c25-9084-24970b1d3278/checking-if-a-connection-is-valid?forum=csharpgeneral -- check DB is Valid connection.
