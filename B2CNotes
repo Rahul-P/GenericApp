@@ -1,3 +1,31 @@
+#region Input Models.
+
+        public const string MaxAllowedLength_AzureApplicationId_300 = "Azure Application Id must not be more than 300 characters long.";
+        public const string AzureApplicationId_IsRequired = "Azure Application Id is required.";
+        public const string Display_Name_AzureApplicationId = "Azure Application ID";
+
+        public const string MaxAllowedLength_ApplicationDisplayName_100 = "Application Display Name must not be more than 100 characters long.";
+        public const string ApplicationDisplayName_IsRequired = "Display Name is required.";
+        public const string Display_Name_ApplicationDisplayName = "Display Name";
+
+        public const string MaxAllowedLength_Email_500 = "Email must not be more than 500 characters long.";
+        public const string Email_IsRequired = "Email Address is required.";
+        public const string Display_Name_Email = "Email Address";
+
+        public const string ApplicationId_IsRequired = "Application Id is required.";
+        public const string Display_Name_ApplicationId = "Application Id";
+
+        public const string AuthorizationId_IsRequired = "Authorization Id is required.";
+        public const string Display_Name_AuthorizationId = "Authorization id";
+
+        public const string MaxAllowedLength_Role_100 = "Role must not be more than 100 characters long.";
+        public const string Role_IsRequired = "Role is required.";
+        public const string Display_Name_Role = "Role";
+
+        public const string Status_Range_ErrorMessage = "Status must be between 1 and 4 where 1 = AwaitingApproval, 2 = Approved, 3 = Rejected and 4 = Revoked.";
+        public const string PreviousStatus_Range_ErrorMessage = "Previous Status must be between 1 and 4 where 1 = AwaitingApproval, 2 = Approved, 3 = Rejected and 4 = Revoked.";
+
+        #endregion
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
