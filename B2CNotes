@@ -1,20 +1,207 @@
-if (_authorizationIdAsString != string.Empty)
+using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+
+namespace AzureAD_B2CBroker.InputModels
+{
+    public sealed class Application : IDisposable
+    {
+        [StringLength(Misc.Constants.THREE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_AzureApplicationId_300)]
+        [Required(ErrorMessage = Misc.Constants.AzureApplicationId_IsRequired)]
+        [DisplayName(Misc.Constants.Display_Name_AzureApplicationId)]
+        [MinLength(Misc.Constants.THREE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_AzureApplicationId_300)]
+        public string AzureApplicationId { get; set; }
+
+        [StringLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_ApplicationDisplayName_100)]
+        [Required(ErrorMessage = Misc.Constants.ApplicationDisplayName_IsRequired)]
+        [DisplayName(Misc.Constants.Display_Name_ApplicationDisplayName)]
+        [MinLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_ApplicationDisplayName_100)]
+        public string DisplayName { get; set; }
+
+        public int Id { get; set; }
+
+        #region IDisposable Support        
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
+    }
+}
+
+
+using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+
+namespace AzureAD_B2CBroker.InputModels
+{
+    public sealed class Authorization : IDisposable
+    {
+        [StringLength(Misc.Constants.FIVE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Email_500)]
+        [Required(ErrorMessage = Misc.Constants.Email_IsRequired)]
+        [DisplayName(Misc.Constants.Display_Name_Email)]
+        [MinLength(Misc.Constants.FIVE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Email_500)]
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = Misc.Constants.ApplicationId_IsRequired)]
+        [DisplayName(Misc.Constants.Display_Name_ApplicationId)]
+        public int ApplicationId { get; set; }
+
+        public int Id { get; set; }
+
+        #region IDisposable Support        
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
+    }
+}
+
+
+using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+namespace AzureAD_B2CBroker.InputModels
+{
+    public sealed class CurrentAuthorization : IDisposable
+    {
+        [Required(ErrorMessage = Misc.Constants.ApplicationId_IsRequired)]
+        [DisplayName(Misc.Constants.Display_Name_ApplicationId)]
+        public int ApplicationId { get; set; }
+
+        [Required(ErrorMessage = Misc.Constants.AuthorizationId_IsRequired)]
+        [DisplayName(Misc.Constants.Display_Name_AuthorizationId)]
+        public int AuthorizationId { get; set; }
+
+        [StringLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Role_100)]
+        [Required(ErrorMessage = Misc.Constants.Role_IsRequired)]
+        [DisplayName(Misc.Constants.Display_Name_Role)]
+        [MinLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Role_100)]
+        public string Role { get; set; }
+
+        [Range(Misc.Constants.ONE, Misc.Constants.FOUR, ErrorMessage = Misc.Constants.Status_Range_ErrorMessage)]
+        public int Status { get; set; }
+
+        public int Id { get; set; }
+
+        #region IDisposable Support        
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
+    }
+}
+
+using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+
+namespace AzureAD_B2CBroker.InputModels
+{
+    public sealed class HistoryAuthorization : IDisposable
+    {
+        [Required(ErrorMessage = Misc.Constants.ApplicationId_IsRequired)]
+        [DisplayName(Misc.Constants.Display_Name_ApplicationId)]
+        public int ApplicationId { get; set; }
+
+        [Required(ErrorMessage = Misc.Constants.AuthorizationId_IsRequired)]
+        [DisplayName(Misc.Constants.Display_Name_AuthorizationId)]
+        public int AuthorizationId { get; set; }
+
+        [StringLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Role_100)]
+        [Required(ErrorMessage = Misc.Constants.Role_IsRequired)]
+        [DisplayName(Misc.Constants.Display_Name_Role)]
+        [MinLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Role_100)]
+        public string Role { get; set; }
+
+        [Range(Misc.Constants.ONE, Misc.Constants.FOUR, ErrorMessage = Misc.Constants.PreviousStatus_Range_ErrorMessage)]
+        public int PreviousStatus { get; set; }
+
+        #region IDisposable Support        
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
+    }
+}
+
+
+using AutoMapper;
+namespace AzureAD_B2CBroker
+{
+    public class B2CBrokerProfile : Profile
+    {
+        public B2CBrokerProfile()
+        {
+            this.CreateMap<B2CBroker.Domain.Application, AzureAD_B2CBroker.InputModels.Application>().ReverseMap();
+            this.CreateMap<B2CBroker.Domain.Authorization, AzureAD_B2CBroker.InputModels.Authorization>().ReverseMap();
+            this.CreateMap<B2CBroker.Domain.CurrentAuthorization, AzureAD_B2CBroker.InputModels.CurrentAuthorization>().ReverseMap();
+            this.CreateMap<B2CBroker.Domain.HistoryAuthorization, AzureAD_B2CBroker.InputModels.HistoryAuthorization>().ReverseMap();
+        }
+    }
+}
+
+
+private HistoryAuthorization MapCurrentAuthorizationToHistoryAuthorization(CurrentAuthorization _modelFromDatabase)
+        {
+            return new HistoryAuthorization()
+            {
+                Role = _modelFromDatabase.Role,
+                PreviousStatus = _modelFromDatabase.Status,
+
+                AuthorizationId = _modelFromDatabase.AuthorizationId,
+                ApplicationId = _modelFromDatabase.ApplicationId,
+
+                LastModifiedBy = _modelFromDatabase.LastModifiedBy,
+                LastModifiedOn = _modelFromDatabase.LastModifiedOn,
+
+                CreatedBy = _modelFromDatabase.CreatedBy,
+                CreatedOn = _modelFromDatabase.CreatedOn,
+
+                IsDeleted = _modelFromDatabase.IsDeleted
+            };
+        }
+		
+		
+		
+		
+		
+		if (_authorizationIdAsString != string.Empty)
                             {
                                 int parsedAuthorizationId = Int32.Parse(_authorizationIdAsString);
                                 if (_applicationId != default(int))
                                 {
-                                    query = query.Where(historyAuthorization =>
-                                        historyAuthorization.AuthorizationId == parsedAuthorizationId &&
-                                        historyAuthorization.ApplicationId == _applicationId);
+                                    query = query.Where(currentAuthorization =>
+                                        currentAuthorization.AuthorizationId == parsedAuthorizationId &&
+                                        currentAuthorization.ApplicationId == _applicationId);
                                 }
                                 else
                                 {
-                                    query = query.Where(historyAuthorization =>
-                                        historyAuthorization.AuthorizationId == parsedAuthorizationId;
+                                    query = query.Where(currentAuthorization =>
+                                        currentAuthorization.AuthorizationId == parsedAuthorizationId);
                                 }
                             }
-                            else if (_applicationId != default(int))
+                            else if(_applicationId != default(int))
                             {
-                                query = query.Where(historyAuthorization =>
-                                        historyAuthorization.ApplicationId == _applicationId);
+                                query = query.Where(currentAuthorization =>
+                                        currentAuthorization.ApplicationId == _applicationId);
                             }
+
+
+
