@@ -1,235 +1,1544 @@
-#region Input Models.
 
-        public const string MaxAllowedLength_AzureApplicationId_300 = "Azure Application Id must not be more than 300 characters long.";
-        public const string AzureApplicationId_IsRequired = "Azure Application Id is required.";
-        public const string Display_Name_AzureApplicationId = "Azure Application ID";
+#region API - Input Validation Error(s).
 
-        public const string MaxAllowedLength_ApplicationDisplayName_100 = "Application Display Name must not be more than 100 characters long.";
-        public const string ApplicationDisplayName_IsRequired = "Display Name is required.";
-        public const string Display_Name_ApplicationDisplayName = "Display Name";
+        public const string Error_InvalidInputLength = "Supplied input is either too long or too short. Please check the supplied input value.";
+        public const string Error_InvalidInput = "Failed! to parse input. Please check your supplied input.";
 
-        public const string MaxAllowedLength_Email_500 = "Email must not be more than 500 characters long.";
-        public const string Email_IsRequired = "Email Address is required.";
-        public const string Display_Name_Email = "Email Address";
+        public const string Message_ApplicationNotFound = "Requested application with supplied details could not be found!";
+        public const string Error_InvalidInputLengthForTakeAndSkip = "Supplied 'skipRows' and/or 'takeRows' value is incorrect. 'takeRows' must be greater than or equal to 3 and less than 255 and 'skipRows' must be greater than 0.";
 
-        public const string ApplicationId_IsRequired = "Application Id is required.";
-        public const string Display_Name_ApplicationId = "Application Id";
+        public const string Message_ApplicationDetailsNotValid = "Provided application details are not valid, please check supplied details.";
 
-        public const string AuthorizationId_IsRequired = "Authorization Id is required.";
-        public const string Display_Name_AuthorizationId = "Authorization id";
+        public const string Message_AzureApplicationIdMismatch = "Application Id provided in model does not match with the one mentioned in uri.";
 
-        public const string MaxAllowedLength_Role_100 = "Role must not be more than 100 characters long.";
-        public const string Role_IsRequired = "Role is required.";
-        public const string Display_Name_Role = "Role";
+        public const string Message_AuthorizationNotFound = "Requested authorization with supplied details could not be found!";
 
-        public const string Status_Range_ErrorMessage = "Status must be between 1 and 4 where 1 = AwaitingApproval, 2 = Approved, 3 = Rejected and 4 = Revoked.";
-        public const string PreviousStatus_Range_ErrorMessage = "Previous Status must be between 1 and 4 where 1 = AwaitingApproval, 2 = Approved, 3 = Rejected and 4 = Revoked.";
+        public const string Message_AuthorizationDetailsNotValid = "Provided authorization details are not valid, please check supplied details.";
+
+        public const string Message_ApplicationIdMismatch = "Application Id provided in model does not match with the one mentioned in uri.";
+
+        public const string Message_AuthorizationIdMismatch = "Authorization's Application Id provided in model does not match with the one mentioned in uri.";
+
+        public const string Message_CurrentAuthorizationIdMismatch = "Current Authorization's Application Id provided in model does not match with the one mentioned in uri.";
+
+        public const string Message_HistoryAuthorizationIdMismatch = "History Authorization's Application Id provided in model does not match with the one mentioned in uri.";
+
+        public const string Message_CurrentAuthorizationNotFound = "Requested current authorization with supplied details could not be found!";
+
+        public const string Message_HistoryAuthorizationNotFound = "Requested history authorization with supplied details could not be found!";
+
+        public const string Message_CurrentAuthorizationDetailsNotValid = "Provided current authorization details are not valid, please check supplied details.";
+
+        public const string Message_HistoryAuthorizationDetailsNotValid = "Provided history authorization details are not valid, please check supplied details.";
+
 
         #endregion
-using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-
-namespace AzureAD_B2CBroker.InputModels
-{
-    public sealed class Application : IDisposable
-    {
-        [StringLength(Misc.Constants.THREE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_AzureApplicationId_300)]
-        [Required(ErrorMessage = Misc.Constants.AzureApplicationId_IsRequired)]
-        [DisplayName(Misc.Constants.Display_Name_AzureApplicationId)]
-        [MinLength(Misc.Constants.THREE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_AzureApplicationId_300)]
-        public string AzureApplicationId { get; set; }
-
-        [StringLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_ApplicationDisplayName_100)]
-        [Required(ErrorMessage = Misc.Constants.ApplicationDisplayName_IsRequired)]
-        [DisplayName(Misc.Constants.Display_Name_ApplicationDisplayName)]
-        [MinLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_ApplicationDisplayName_100)]
-        public string DisplayName { get; set; }
-
-        public int Id { get; set; }
-
-        #region IDisposable Support        
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
-    }
-}
 
 
-using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-
-namespace AzureAD_B2CBroker.InputModels
-{
-    public sealed class Authorization : IDisposable
-    {
-        [StringLength(Misc.Constants.FIVE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Email_500)]
-        [Required(ErrorMessage = Misc.Constants.Email_IsRequired)]
-        [DisplayName(Misc.Constants.Display_Name_Email)]
-        [MinLength(Misc.Constants.FIVE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Email_500)]
-        public string Email { get; set; }
-
-        [Required(ErrorMessage = Misc.Constants.ApplicationId_IsRequired)]
-        [DisplayName(Misc.Constants.Display_Name_ApplicationId)]
-        public int ApplicationId { get; set; }
-
-        public int Id { get; set; }
-
-        #region IDisposable Support        
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
-    }
-}
-
-
-using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-namespace AzureAD_B2CBroker.InputModels
-{
-    public sealed class CurrentAuthorization : IDisposable
-    {
-        [Required(ErrorMessage = Misc.Constants.ApplicationId_IsRequired)]
-        [DisplayName(Misc.Constants.Display_Name_ApplicationId)]
-        public int ApplicationId { get; set; }
-
-        [Required(ErrorMessage = Misc.Constants.AuthorizationId_IsRequired)]
-        [DisplayName(Misc.Constants.Display_Name_AuthorizationId)]
-        public int AuthorizationId { get; set; }
-
-        [StringLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Role_100)]
-        [Required(ErrorMessage = Misc.Constants.Role_IsRequired)]
-        [DisplayName(Misc.Constants.Display_Name_Role)]
-        [MinLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Role_100)]
-        public string Role { get; set; }
-
-        [Range(Misc.Constants.ONE, Misc.Constants.FOUR, ErrorMessage = Misc.Constants.Status_Range_ErrorMessage)]
-        public int Status { get; set; }
-
-        public int Id { get; set; }
-
-        #region IDisposable Support        
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
-    }
-}
-
-using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-
-namespace AzureAD_B2CBroker.InputModels
-{
-    public sealed class HistoryAuthorization : IDisposable
-    {
-        [Required(ErrorMessage = Misc.Constants.ApplicationId_IsRequired)]
-        [DisplayName(Misc.Constants.Display_Name_ApplicationId)]
-        public int ApplicationId { get; set; }
-
-        [Required(ErrorMessage = Misc.Constants.AuthorizationId_IsRequired)]
-        [DisplayName(Misc.Constants.Display_Name_AuthorizationId)]
-        public int AuthorizationId { get; set; }
-
-        [StringLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Role_100)]
-        [Required(ErrorMessage = Misc.Constants.Role_IsRequired)]
-        [DisplayName(Misc.Constants.Display_Name_Role)]
-        [MinLength(Misc.Constants.ONE_HUNDRED, ErrorMessage = Misc.Constants.MaxAllowedLength_Role_100)]
-        public string Role { get; set; }
-
-        [Range(Misc.Constants.ONE, Misc.Constants.FOUR, ErrorMessage = Misc.Constants.PreviousStatus_Range_ErrorMessage)]
-        public int PreviousStatus { get; set; }
-
-        #region IDisposable Support        
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
-    }
-}
-
-
-using AutoMapper;
-namespace AzureAD_B2CBroker
-{
-    public class B2CBrokerProfile : Profile
-    {
-        public B2CBrokerProfile()
-        {
-            this.CreateMap<B2CBroker.Domain.Application, AzureAD_B2CBroker.InputModels.Application>().ReverseMap();
-            this.CreateMap<B2CBroker.Domain.Authorization, AzureAD_B2CBroker.InputModels.Authorization>().ReverseMap();
-            this.CreateMap<B2CBroker.Domain.CurrentAuthorization, AzureAD_B2CBroker.InputModels.CurrentAuthorization>().ReverseMap();
-            this.CreateMap<B2CBroker.Domain.HistoryAuthorization, AzureAD_B2CBroker.InputModels.HistoryAuthorization>().ReverseMap();
-        }
-    }
-}
-
-
-private HistoryAuthorization MapCurrentAuthorizationToHistoryAuthorization(CurrentAuthorization _modelFromDatabase)
-        {
-            return new HistoryAuthorization()
-            {
-                Role = _modelFromDatabase.Role,
-                PreviousStatus = _modelFromDatabase.Status,
-
-                AuthorizationId = _modelFromDatabase.AuthorizationId,
-                ApplicationId = _modelFromDatabase.ApplicationId,
-
-                LastModifiedBy = _modelFromDatabase.LastModifiedBy,
-                LastModifiedOn = _modelFromDatabase.LastModifiedOn,
-
-                CreatedBy = _modelFromDatabase.CreatedBy,
-                CreatedOn = _modelFromDatabase.CreatedOn,
-
-                IsDeleted = _modelFromDatabase.IsDeleted
-            };
-        }
 		
-		
-		
-		
-		
-		if (_authorizationIdAsString != string.Empty)
+		int parsedAuthorizationId = Int32.Parse(_id);
+
+                            if (_applicationId != default(int) && _applicationId > Misc.Constants.ZERO)
                             {
-                                int parsedAuthorizationId = Int32.Parse(_authorizationIdAsString);
-                                if (_applicationId != default(int))
-                                {
-                                    query = query.Where(currentAuthorization =>
-                                        currentAuthorization.AuthorizationId == parsedAuthorizationId &&
-                                        currentAuthorization.ApplicationId == _applicationId);
-                                }
-                                else
-                                {
-                                    query = query.Where(currentAuthorization =>
-                                        currentAuthorization.AuthorizationId == parsedAuthorizationId);
-                                }
+                                CurrentAuthorization _currentAuthorization = await _context
+                                .CurrentAuthorization
+                                .FirstOrDefaultAsync
+                                (u => u.AuthorizationId == parsedAuthorizationId && u.ApplicationId == _applicationId);
+
+                                return _currentAuthorization;
                             }
-                            else if(_applicationId != default(int))
+                            else
+                            {
+                                CurrentAuthorization _currentAuthorization = await _context
+                                .CurrentAuthorization
+                                .FirstOrDefaultAsync // Fetch Current Authorization for all Applications.
+                                (u => u.AuthorizationId == parsedAuthorizationId); 
+
+                                return _currentAuthorization;
+                            }
+							
+							
+							
+		
+
+int parsedAuthorizationId = 
+                                _authorizationIdAsString != string.Empty 
+                                ? Int32.Parse(_authorizationIdAsString) 
+                                : Misc.Constants.ZERO;
+
+                            bool onlyApplicationIdAvailable = 
+                                parsedAuthorizationId > Misc.Constants.ZERO 
+                                ? Misc.Constants.TRUE 
+                                : Misc.Constants.FALSE;
+
+                            bool onlyAuthorizationIdAvailable =
+                            (_applicationId != default(int) && _applicationId > Misc.Constants.ZERO) 
+                            ? Misc.Constants.TRUE 
+                            : Misc.Constants.FALSE;
+
+                            bool bothIdsAvailable = 
+                                onlyApplicationIdAvailable && onlyAuthorizationIdAvailable 
+                                ? Misc.Constants.TRUE 
+                                : Misc.Constants.FALSE;
+                            
+                            if (bothIdsAvailable)
+                            {
+                                query = query.Where(currentAuthorization =>
+                                            currentAuthorization.AuthorizationId == parsedAuthorizationId &&
+                                            currentAuthorization.ApplicationId == _applicationId);
+                            }
+                            else if (onlyAuthorizationIdAvailable)
+                            {
+                                query = query.Where(currentAuthorization =>
+                                        currentAuthorization.AuthorizationId == parsedAuthorizationId);
+                            }
+                            else if (onlyApplicationIdAvailable)
                             {
                                 query = query.Where(currentAuthorization =>
                                         currentAuthorization.ApplicationId == _applicationId);
                             }
+
+
+
+							
+							
+							
+							int parseAuthorizationId = Int32.Parse(_id);
+
+                            if (_applicationId != default(int) && _applicationId > Misc.Constants.ZERO)
+                            {
+                                HistoryAuthorization _historyAuthorization = await _context
+                                .HistoryAuthorization
+                                .FirstOrDefaultAsync
+                                (u => u.AuthorizationId == parseAuthorizationId && u.ApplicationId == _applicationId);
+
+                                return _historyAuthorization;
+                            }
+                            else
+                            {
+                                HistoryAuthorization _historyAuthorization = await _context
+                                .HistoryAuthorization
+                                .FirstOrDefaultAsync // Fetch Current Authorization for all Applications.
+                                (u => u.AuthorizationId == parseAuthorizationId);
+
+                                return _historyAuthorization;
+                            }
+							
+							
+							
+							
+							
+							int parsedAuthorizationId =
+                                _authorizationIdAsString != string.Empty
+                                ? Int32.Parse(_authorizationIdAsString)
+                                : Misc.Constants.ZERO;
+
+                            bool onlyApplicationIdAvailable =
+                                parsedAuthorizationId > Misc.Constants.ZERO
+                                ? Misc.Constants.TRUE
+                                : Misc.Constants.FALSE;
+
+                            bool onlyAuthorizationIdAvailable =
+                            (_applicationId != default(int) && _applicationId > Misc.Constants.ZERO)
+                            ? Misc.Constants.TRUE
+                            : Misc.Constants.FALSE;
+
+                            bool bothIdsAvailable =
+                                onlyApplicationIdAvailable && onlyAuthorizationIdAvailable
+                                ? Misc.Constants.TRUE
+                                : Misc.Constants.FALSE;
+
+                            if (bothIdsAvailable)
+                            {
+                                query = query.Where(historyAuthorization =>
+                                            historyAuthorization.AuthorizationId == parsedAuthorizationId &&
+                                            historyAuthorization.ApplicationId == _applicationId);
+                            }
+                            else if (onlyAuthorizationIdAvailable)
+                            {
+                                query = query.Where(historyAuthorization =>
+                                        historyAuthorization.AuthorizationId == parsedAuthorizationId);
+                            }
+                            else if (onlyApplicationIdAvailable)
+                            {
+                                query = query.Where(historyAuthorization =>
+                                        historyAuthorization.ApplicationId == _applicationId);
+                            }
+							
+
+
+
+using AutoMapper;
+using B2CBroker.Business;
+using Functional;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Threading.Tasks;
+
+namespace AzureAD_B2CBroker.Controllers
+{
+    [Route(Misc.Constants.API_Route)]
+    [ApiController]
+    public class ApplicationController : ControllerBase
+    {
+        private readonly B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.Application> _repo;
+        private readonly Orchestrator _orchestrator;
+        private readonly IMapper _mapper;
+        private readonly LinkGenerator _linkGenerator;
+
+        public ApplicationController(B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.Application> _passedRepo,
+            IMapper _passedMapper, LinkGenerator _passedLinkGenerator)
+        {
+            _repo = _passedRepo;
+            _orchestrator = new Orchestrator();
+            _mapper = _passedMapper;
+            _linkGenerator = _passedLinkGenerator;
+        }
+
+
+        // Sample: https://localhost:44315/api/application/ae91c46e-b814-46e1-9261-1bfea1fe11be
+        [HttpGet(Misc.Constants.API_Route_IdParam)]
+        public async Task<ActionResult<InputModels.Application>> GetApplication(string id) =>
+            await TryCatch.SanitiseInput<string, Option<Error>>
+                ((_id) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    if (_id.Length == Misc.Constants.THIRTY_SIX)
+                    {
+                        return new None<Error>();
+                    }
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to client.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                id)
+                .ProcessOnNoneAsync<Error, ActionResult>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_ApplicationNotFound
+                            : Misc.Constants.Message_ApplicationNotFound;
+
+                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.Application>>
+                            (
+                                // Business Method to Run, when validation Succeeds.
+                                _orchestrator.GetApplicationByStringId(id, FetchCurrentAuthenticatedUser(), _repo),                
+                            (e, l) =>
+                            {   // We have encountered exception in one of the Business Method(s)/Layers, relay 
+                                // sophisticated information back to client.
+                                return new
+                                    B2CBroker.Data.Errors.ApplicationNotFound(Misc.Constants.Error_ApplicationNotFound + id);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null 
+                                    ? (ActionResult)Ok(_mapper.Map<InputModels.Application>(r)) 
+                                    : (ActionResult)base.NotFound(Misc.Constants.Message_ApplicationNotFound))
+                        .Reduce(_ => base.NotFound(Misc.Constants.Message_ApplicationNotFound), 
+                            error => error is B2CBroker.Data.Errors.ApplicationNotFound)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+
+        // Sample: https://localhost:44315/api/applications?takeRows=3
+        [HttpGet]
+        public async Task<ActionResult<InputModels.Application[]>> GetApplications(int skipRows = Misc.Constants.ZERO, 
+            int takeRows = Misc.Constants.TWENTY) =>
+            await TryCatch.SanitiseInput<int, int, Option<Error>>
+                ((_skipRows, _takeRows) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    if (_takeRows >= Misc.Constants.THREE && _takeRows <= Misc.Constants.TWO_FIFTY_FIVE
+                        && _skipRows >= Misc.Constants.ZERO)
+                    {
+                        return new None<Error>();
+                    }
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLengthForTakeAndSkip);
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                skipRows, takeRows)
+                .ProcessOnNoneAsync<Error, ActionResult>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_ApplicationNotFound
+                            : Misc.Constants.Message_ApplicationNotFound;
+
+                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.Application[]>>
+                            (
+                                // Business Method to Run, when validation Succeeds.
+                                _orchestrator.GetApplications(string.Empty, FetchCurrentAuthenticatedUser(),
+                                    _repo, Misc.Constants.FALSE, skipRows, takeRows),                
+                            (e, l) =>
+                            {   // We have encountered exception in one of the Business Method(s)/Layers, relay sophisticated information back to client.
+                                return new B2CBroker.Data.Errors.NoDataFound(Misc.Constants.Message_NoDataFound);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null 
+                                ? (ActionResult)Ok(_mapper.Map<InputModels.Application[]>(r)) 
+                                : (ActionResult)base.NotFound(Misc.Constants.Message_NoDataFound))
+                        .Reduce(_ => base.NotFound(Misc.Constants.Message_NoDataFound), 
+                            error => error is B2CBroker.Data.Errors.ApplicationNotFound)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+        [HttpPost]
+        public async Task<ActionResult<InputModels.Application>> Post(InputModels.Application application) =>
+            await TryCatch.SanitiseInput<InputModels.Application, Option<Error>>
+                ((_application) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                    return new None<Error>();
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                application)
+                .ProcessOnNoneAsync<Error, ActionResult<InputModels.Application>>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_ApplicationDetailsNotValid
+                            : Misc.Constants.Message_ApplicationDetailsNotValid;
+
+                        return Task.FromResult((ActionResult<InputModels.Application>)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                            (
+                                // Business Method to Run, when validation Succeeds.
+                                _orchestrator.SaveApplication(string.Empty, FetchCurrentAuthenticatedUser(), 
+                                    _mapper.Map<B2CBroker.Domain.Application>(application), _repo),                
+                            (e, l) =>
+                            {   
+                                // We have encountered exception in one of the Business Method(s)/Layers, 
+                                //relay sophisticated information back to client.
+                                return new 
+                                    B2CBroker.Data.Errors.ApplicationNotAdded(Misc.Constants.Message_ApplicationNotAdded);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null
+                                    ? r.IsSuccess
+                                        ? (ActionResult)Created(r.OperationResult, application)
+                                        : (ActionResult)base.BadRequest(r.OperationResult)
+                                    : (ActionResult)base.BadRequest(Misc.Constants.Message_ApplicationNotAdded))
+                        .Reduce(_ => base.BadRequest(Misc.Constants.Message_ApplicationNotAdded), 
+                            error => error is B2CBroker.Data.Errors.ApplicationNotAdded)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+        [HttpPut(Misc.Constants.API_Route_IdParam)]
+        public async Task<IActionResult> Put(string id, InputModels.Application application) =>
+            await TryCatch.SanitiseInput<InputModels.Application, string, Option<Error>>
+                    ((_application, _id) =>   // Check/Validate supplied Input Data, act accordingly.
+                    {
+                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                        if (_id.ToLowerInvariant() == _application.AzureApplicationId.ToLowerInvariant())
+                            return new None<Error>();
+
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput +
+                            Misc.Constants.SPACE + Misc.Constants.Message_AzureApplicationIdMismatch);
+                    },
+                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                    {
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                    },
+                    () =>
+                    {
+                        // Finally Block.
+                    },
+                    application, id)
+                    .ProcessOnNoneAsync<Error, IActionResult>
+                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                        {
+                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                                ? e is B2CBroker.Data.Errors.InvalidInput i
+                                    ? i._reason
+                                    : Misc.Constants.Message_ApplicationDetailsNotValid
+                                : Misc.Constants.Message_ApplicationDetailsNotValid;
+
+                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
+                        },
+                        async () => // Real Code - Goes in this Async Lambda.           
+                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                                (
+                                    // Business Method to Run, when validation Succeeds.
+                                    _orchestrator.UpdateApplication(id, FetchCurrentAuthenticatedUser(),
+                                        _mapper.Map<B2CBroker.Domain.Application>(application), _repo),                
+                                (e, l) =>
+                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
+                                    // relay sophisticated information back to client.
+                                    return new 
+                                        B2CBroker.Data.Errors.ApplicationNotUpdated(Misc.Constants.Message_ApplicationNotUpdated);
+                                },
+                                () =>
+                                {
+                                    // Finally Block.
+                                })
+                                .ConfigureAwait(Misc.Constants.FALSE))
+                            .Map(r => r != null
+                                        ? r.IsSuccess
+                                            ? (IActionResult)Ok(r.OperationResult)
+                                            : (IActionResult)base.BadRequest(r.OperationResult)
+                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_ApplicationNotUpdated))
+                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_ApplicationNotUpdated), 
+                                error => error is B2CBroker.Data.Errors.ApplicationNotUpdated)
+                            .Reduce(_ => (IActionResult)InternalServerError()));
+
+
+
+        [HttpDelete(Misc.Constants.API_Route_IdParam)]
+        public async Task<IActionResult> DeleteApplication(string id) =>
+            await TryCatch.SanitiseInput<string, Option<Error>>
+                    ((_applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
+                    {
+                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                        if (_applicationId.Length == Misc.Constants.THIRTY_SIX)
+                        {
+                            return new None<Error>();
+                        }
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
+                    },
+                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                    {
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                    },
+                    () =>
+                    {
+                        // Finally Block.
+                    },
+                    id)
+                    .ProcessOnNoneAsync<Error, IActionResult>
+                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                        {
+                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                                ? e is B2CBroker.Data.Errors.InvalidInput i
+                                    ? i._reason
+                                    : Misc.Constants.Message_ApplicationDetailsNotValid
+                                : Misc.Constants.Message_ApplicationDetailsNotValid;
+
+                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
+                        },
+                        async () => // Real Code - Goes in this Async Lambda.           
+                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                                (
+                                    // Business Method to Run, when validation Succeeds. 
+                                    _orchestrator.DeleteApplication(id, FetchCurrentAuthenticatedUser(), 
+                                        id, _repo),               
+                                (e, l) =>
+                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
+                                    // relay sophisticated information back to client.
+                                    return new 
+                                        B2CBroker.Data.Errors.ApplicationNotDeleted(Misc.Constants.Message_ApplicationNotDeleted);
+                                },
+                                () =>
+                                {
+                                    // Finally Block.
+                                })
+                                .ConfigureAwait(Misc.Constants.FALSE))
+                            .Map(r => r != null
+                                        ? r.IsSuccess
+                                            ? (IActionResult)Ok(r.OperationResult)
+                                            : (IActionResult)base.BadRequest(r.OperationResult)
+                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_ApplicationNotDeleted))
+                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_ApplicationNotDeleted), 
+                                error => error is B2CBroker.Data.Errors.ApplicationNotDeleted)
+                            .Reduce(_ => (IActionResult)InternalServerError()));
+
+
+        #region Private(s)
+
+        private string FetchCurrentAuthenticatedUser() =>
+            string.Empty;
+
+        private IActionResult InternalServerError() =>
+            StatusCode(StatusCodes.Status500InternalServerError);
+
+        #endregion
+    }
+}
+
+
+
+
+
+
+using AutoMapper;
+using B2CBroker.Business;
+using Functional;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Threading.Tasks;
+
+namespace AzureAD_B2CBroker.Controllers
+{
+    [Route(Misc.Constants.API_Route)]
+    [ApiController]
+    public class AuthorizationController : ControllerBase
+    {
+        private readonly B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.Authorization> _repo;
+        private readonly Orchestrator _orchestrator;
+        private readonly IMapper _mapper;
+        private readonly LinkGenerator _linkGenerator;
+
+        public AuthorizationController(B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.Authorization> _passedRepo,
+            IMapper _passedMapper, LinkGenerator _passedLinkGenerator)
+        {
+            _repo = _passedRepo;
+            _orchestrator = new Orchestrator();
+            _mapper = _passedMapper;
+            _linkGenerator = _passedLinkGenerator;
+        }
+
+        // Sample: https://localhost:44375/api/authorization/exampleemail@domain.com.au?applicationId=23
+        [HttpGet(Misc.Constants.API_Route_IdParam)]
+        public async Task<ActionResult<InputModels.Authorization>> GetAuthorization(string id, int applicationId) =>
+            await TryCatch.SanitiseInput<string, int, Option<Error>>
+                ((_id, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    if (_id.Length <= Misc.Constants.ONE_THOUSAND 
+                        && _applicationId > Misc.Constants.ZERO
+                        && _id.Contains(Misc.Constants.AT_THE_RATE))                    
+                    {
+                        return new None<Error>();
+                    }
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to client.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                id, applicationId)
+                .ProcessOnNoneAsync<Error, ActionResult>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_AuthorizationNotFound
+                            : Misc.Constants.Message_AuthorizationNotFound;
+
+                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.Authorization>>
+                            (
+                                // Business Method to Run, when validation Succeeds.                                
+                                _orchestrator.GetAuthorizationByStringId(applicationId, id, 
+                                    FetchCurrentAuthenticatedUser(), _repo),
+                            (e, l) =>
+                            {   // We have encountered exception in one of the Business Method(s)/Layers, relay 
+                                // sophisticated information back to client.
+                                return new
+                                    B2CBroker.Data.Errors.AuthorizationNotFound(Misc.Constants.Error_AuthorizationNotFound + id);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null
+                                    ? (ActionResult)Ok(_mapper.Map<InputModels.Authorization>(r))
+                                    : (ActionResult)base.NotFound(Misc.Constants.Message_AuthorizationNotFound))
+                        .Reduce(_ => base.NotFound(Misc.Constants.Message_AuthorizationNotFound),
+                            error => error is B2CBroker.Data.Errors.AuthorizationNotFound)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+        // Sample: https://localhost:44375/api/authorizations?takeRows=3
+        [HttpGet]
+        public async Task<ActionResult<InputModels.Authorization[]>> GetAuthorizations(int applicationId = Misc.Constants.ZERO, 
+            int skipRows = Misc.Constants.ZERO, int takeRows = Misc.Constants.TWENTY) =>
+            await TryCatch.SanitiseInput<int, int, Option<Error>>
+                ((_skipRows, _takeRows) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    if (_takeRows >= Misc.Constants.THREE && _takeRows <= Misc.Constants.TWO_FIFTY_FIVE
+                        && _skipRows >= Misc.Constants.ZERO)
+                    {
+                        return new None<Error>();
+                    }
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLengthForTakeAndSkip);
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                skipRows, takeRows)
+                .ProcessOnNoneAsync<Error, ActionResult>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_AuthorizationNotFound
+                            : Misc.Constants.Message_AuthorizationNotFound;
+
+                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.Authorization[]>>
+                            (
+                                // Business Method to Run, when validation Succeeds.
+                                _orchestrator.GetAuthorizations(applicationId, FetchCurrentAuthenticatedUser(),
+                                    _repo, Misc.Constants.FALSE, skipRows, takeRows),
+                            (e, l) =>
+                            {   
+                                // We have encountered exception in one of the Business Method(s)/Layers, 
+                                // relay sophisticated information back to client.
+                                return new B2CBroker.Data.Errors.NoDataFound(Misc.Constants.Message_NoDataFound);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null
+                                ? (ActionResult)Ok(_mapper.Map<InputModels.Authorization[]>(r))
+                                : (ActionResult)base.NotFound(Misc.Constants.Message_NoDataFound))
+                        .Reduce(_ => base.NotFound(Misc.Constants.Message_NoDataFound),
+                            error => error is B2CBroker.Data.Errors.AuthorizationNotFound)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+        [HttpPost]
+        public async Task<ActionResult<InputModels.Authorization>> Post(InputModels.Authorization authorization) =>
+            await TryCatch.SanitiseInput<InputModels.Authorization, Option<Error>>
+                ((_authorization) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                    return new None<Error>();
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                authorization)
+                .ProcessOnNoneAsync<Error, ActionResult<InputModels.Authorization>>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_AuthorizationDetailsNotValid
+                            : Misc.Constants.Message_AuthorizationDetailsNotValid;
+
+                        return Task.FromResult((ActionResult<InputModels.Authorization>)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                            (
+                                // Business Method to Run, when validation Succeeds.
+                                _orchestrator.SaveAuthorization(authorization.ApplicationId, FetchCurrentAuthenticatedUser(),
+                                    _mapper.Map<B2CBroker.Domain.Authorization>(authorization), _repo),
+                            (e, l) =>
+                            {
+                                // We have encountered exception in one of the Business Method(s)/Layers, 
+                                //relay sophisticated information back to client.
+                                return new
+                                    B2CBroker.Data.Errors.AuthorizationNotAdded(Misc.Constants.Message_AuthorizationNotAdded);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null
+                                    ? r.IsSuccess
+                                        ? (ActionResult)Created(r.OperationResult, authorization)
+                                        : (ActionResult)base.BadRequest(r.OperationResult)
+                                    : (ActionResult)base.BadRequest(Misc.Constants.Message_AuthorizationNotAdded))
+                        .Reduce(_ => base.BadRequest(Misc.Constants.Message_AuthorizationNotAdded),
+                            error => error is B2CBroker.Data.Errors.AuthorizationNotAdded)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+        [HttpPut(Misc.Constants.API_Route_IdParam)]
+        public async Task<IActionResult> Put(int id, InputModels.Authorization authorization) =>
+            await TryCatch.SanitiseInput<InputModels.Authorization, int, Option<Error>>
+                    ((_authorization, _id) =>   // Check/Validate supplied Input Data, act accordingly.
+                    {
+                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                        if (_id == _authorization.ApplicationId)
+                            return new None<Error>();
+
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput +
+                            Misc.Constants.SPACE + Misc.Constants.Message_AuthorizationIdMismatch);
+                    },
+                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                    {
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                    },
+                    () =>
+                    {
+                        // Finally Block.
+                    },
+                    authorization, id)
+                    .ProcessOnNoneAsync<Error, IActionResult>
+                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                        {
+                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                                ? e is B2CBroker.Data.Errors.InvalidInput i
+                                    ? i._reason
+                                    : Misc.Constants.Message_AuthorizationDetailsNotValid
+                                : Misc.Constants.Message_AuthorizationDetailsNotValid;
+
+                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
+                        },
+                        async () => // Real Code - Goes in this Async Lambda.           
+                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                                (
+                                    // Business Method to Run, when validation Succeeds.
+                                    _orchestrator.UpdateAuthorization(id, FetchCurrentAuthenticatedUser(),
+                                        _mapper.Map<B2CBroker.Domain.Authorization>(authorization), _repo),
+                                (e, l) =>
+                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
+                                    // relay sophisticated information back to client.
+                                    return new
+                                        B2CBroker.Data.Errors.AuthorizationNotUpdated(Misc.Constants.Message_AuthorizationNotUpdated);
+                                },
+                                () =>
+                                {
+                                    // Finally Block.
+                                })
+                                .ConfigureAwait(Misc.Constants.FALSE))
+                            .Map(r => r != null
+                                        ? r.IsSuccess
+                                            ? (IActionResult)Ok(r.OperationResult)
+                                            : (IActionResult)base.BadRequest(r.OperationResult)
+                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_AuthorizationNotUpdated))
+                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_AuthorizationNotUpdated),
+                                error => error is B2CBroker.Data.Errors.AuthorizationNotUpdated)
+                            .Reduce(_ => (IActionResult)InternalServerError()));
+
+
+        [HttpDelete(Misc.Constants.API_Route_IdParam)]
+        public async Task<IActionResult> DeleteAuthorization(string id, int applicationId) =>
+            await TryCatch.SanitiseInput<string, int, Option<Error>>
+                    ((_emailId, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
+                    {
+                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                        if (_emailId.Length <= Misc.Constants.ONE_THOUSAND
+                        && _applicationId > Misc.Constants.ZERO
+                        && _emailId.Contains(Misc.Constants.AT_THE_RATE))
+                        {
+                            return new None<Error>();
+                        }
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
+                    },
+                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                    {
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                    },
+                    () =>
+                    {
+                        // Finally Block.
+                    },
+                    id, applicationId)
+                    .ProcessOnNoneAsync<Error, IActionResult>
+                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                        {
+                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                                ? e is B2CBroker.Data.Errors.InvalidInput i
+                                    ? i._reason
+                                    : Misc.Constants.Message_AuthorizationDetailsNotValid
+                                : Misc.Constants.Message_AuthorizationDetailsNotValid;
+
+                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
+                        },
+                        async () => // Real Code - Goes in this Async Lambda.           
+                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                                (
+                                    // Business Method to Run, when validation Succeeds. 
+                                    _orchestrator.DeleteAuthorization(applicationId, FetchCurrentAuthenticatedUser(),
+                                        id, _repo),
+                                (e, l) =>
+                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
+                                    // relay sophisticated information back to client.
+                                    return new
+                                        B2CBroker.Data.Errors.AuthorizationNotDeleted(Misc.Constants.Message_AuthorizationNotDeleted);
+                                },
+                                () =>
+                                {
+                                    // Finally Block.
+                                })
+                                .ConfigureAwait(Misc.Constants.FALSE))
+                            .Map(r => r != null
+                                        ? r.IsSuccess
+                                            ? (IActionResult)Ok(r.OperationResult)
+                                            : (IActionResult)base.BadRequest(r.OperationResult)
+                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_AuthorizationNotDeleted))
+                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_AuthorizationNotDeleted),
+                                error => error is B2CBroker.Data.Errors.AuthorizationNotDeleted)
+                            .Reduce(_ => (IActionResult)InternalServerError()));
+
+
+
+        #region Private(s)
+
+        private string FetchCurrentAuthenticatedUser() =>
+            string.Empty;
+
+        private IActionResult InternalServerError() =>
+            StatusCode(StatusCodes.Status500InternalServerError);
+
+        #endregion
+    }
+}
+
+
+
+
+
+
+using B2CBroker.Business;
+using B2CBroker.Domain;
+using AutoMapper;
+using Functional;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Threading.Tasks;
+
+namespace AzureAD_B2CBroker.Controllers
+{
+    [Route(Misc.Constants.API_Route)]
+    [ApiController]
+    public class CurrentAuthorizationController : ControllerBase
+    {
+        private readonly B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.CurrentAuthorization> _repo;
+        private readonly Orchestrator _orchestrator;
+        private readonly IMapper _mapper;
+        private readonly LinkGenerator _linkGenerator;
+
+        public CurrentAuthorizationController(B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.CurrentAuthorization> _passedRepo,
+            IMapper _passedMapper, LinkGenerator _passedLinkGenerator)
+        {
+            _repo = _passedRepo;
+            _orchestrator = new Orchestrator();
+            _mapper = _passedMapper;
+            _linkGenerator = _passedLinkGenerator;
+        }
+
+
+        // Sample: https://localhost:44375/api/CurrentAuthorization/5655?applicationId=2354
+        [HttpGet(Misc.Constants.API_Route_IdParam)]
+        public async Task<ActionResult<InputModels.CurrentAuthorization>> GetCurrentAuthorization(int id, int applicationId) =>
+            await TryCatch.SanitiseInput<int, int, Option<Error>>
+                ((_authorizationId, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    if (_authorizationId > Misc.Constants.ZERO
+                        && _applicationId > Misc.Constants.ZERO)
+                    {
+                        return new None<Error>();
+                    }
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to client.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                id, applicationId)
+                .ProcessOnNoneAsync<Error, ActionResult>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_CurrentAuthorizationNotFound
+                            : Misc.Constants.Message_CurrentAuthorizationNotFound;
+
+                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.CurrentAuthorization>>
+                            (
+                                // Business Method to Run, when validation Succeeds.                                
+                                _orchestrator.GetCurrentAuthorizationByStringId(applicationId, id.ToString(),
+                                    FetchCurrentAuthenticatedUser(), _repo),
+                            (e, l) =>
+                            {   // We have encountered exception in one of the Business Method(s)/Layers, relay 
+                                // sophisticated information back to client.
+                                return new
+                                    B2CBroker.Data.Errors.CurrentAuthorizationNotFound
+                                    (Misc.Constants.Error_CurrentAuthorizationNotFound + id);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null
+                                    ? (ActionResult)Ok(_mapper.Map<InputModels.CurrentAuthorization>(r))
+                                    : (ActionResult)base.NotFound(Misc.Constants.Message_CurrentAuthorizationNotFound))
+                        .Reduce(_ => base.NotFound(Misc.Constants.Message_CurrentAuthorizationNotFound),
+                            error => error is B2CBroker.Data.Errors.CurrentAuthorizationNotFound)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+        // Sample: https://localhost:44375/api/CurrentAuthorizations?takeRows=3
+        [HttpGet]
+        public async Task<ActionResult<InputModels.CurrentAuthorization[]>> GetCurrentAuthorizations(
+            int authorizationId = Misc.Constants.ZERO, int applicationId = Misc.Constants.ZERO,
+            int skipRows = Misc.Constants.ZERO, int takeRows = Misc.Constants.TWENTY) =>
+            await TryCatch.SanitiseInput<int, int, Option<Error>>
+                ((_skipRows, _takeRows) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    if (_takeRows >= Misc.Constants.THREE && _takeRows <= Misc.Constants.TWO_FIFTY_FIVE
+                        && _skipRows >= Misc.Constants.ZERO)
+                    {
+                        return new None<Error>();
+                    }
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLengthForTakeAndSkip);
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                skipRows, takeRows)
+                .ProcessOnNoneAsync<Error, ActionResult>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_CurrentAuthorizationNotFound
+                            : Misc.Constants.Message_CurrentAuthorizationNotFound;
+
+                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.CurrentAuthorization[]>>
+                            (
+                                // Business Method to Run, when validation Succeeds.
+                                _orchestrator.GetCurrentAuthorizations(applicationId, FetchCurrentAuthenticatedUser(),
+                                    authorizationId, _repo, Misc.Constants.FALSE, skipRows, takeRows),
+                            (e, l) =>
+                            {
+                                // We have encountered exception in one of the Business Method(s)/Layers, 
+                                // relay sophisticated information back to client.
+                                return new B2CBroker.Data.Errors.NoDataFound(Misc.Constants.Message_NoDataFound);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null
+                                ? (ActionResult)Ok(_mapper.Map<InputModels.CurrentAuthorization[]>(r))
+                                : (ActionResult)base.NotFound(Misc.Constants.Message_NoDataFound))
+                        .Reduce(_ => base.NotFound(Misc.Constants.Message_NoDataFound),
+                            error => error is B2CBroker.Data.Errors.CurrentAuthorizationNotFound)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+        [HttpPost]
+        public async Task<ActionResult<InputModels.CurrentAuthorization>> Post(InputModels.CurrentAuthorization currentAuthorization) =>
+            await TryCatch.SanitiseInput<InputModels.CurrentAuthorization, Option<Error>>
+                ((_currentAuthorization) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                    return new None<Error>();
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                currentAuthorization)
+                .ProcessOnNoneAsync<Error, ActionResult<InputModels.CurrentAuthorization>>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid
+                            : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid;
+
+                        return Task.FromResult((ActionResult<InputModels.CurrentAuthorization>)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                            (
+                                // Business Method to Run, when validation Succeeds.
+                                _orchestrator.SaveCurrentAuthorization(currentAuthorization.ApplicationId, 
+                                    FetchCurrentAuthenticatedUser(), 
+                                    _mapper.Map<B2CBroker.Domain.CurrentAuthorization>(currentAuthorization), 
+                                    _repo),
+                            (e, l) =>
+                            {
+                                // We have encountered exception in one of the Business Method(s)/Layers, 
+                                //relay sophisticated information back to client.
+                                return new
+                                    B2CBroker.Data.Errors.CurrentAuthorizationNotAdded
+                                    (Misc.Constants.Message_CurrentAuthorizationNotAdded);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null
+                                    ? r.IsSuccess
+                                        ? (ActionResult)Created(r.OperationResult, currentAuthorization)
+                                        : (ActionResult)base.BadRequest(r.OperationResult)
+                                    : (ActionResult)base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotAdded))
+                        .Reduce(_ => base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotAdded),
+                            error => error is B2CBroker.Data.Errors.CurrentAuthorizationNotAdded)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+
+        [HttpPut(Misc.Constants.API_Route_IdParam)]
+        public async Task<IActionResult> Put(int id, InputModels.CurrentAuthorization currentAuthorization) =>
+            await TryCatch.SanitiseInput<InputModels.CurrentAuthorization, int, Option<Error>>
+                    ((_currentAuthorization, _id) =>   // Check/Validate supplied Input Data, act accordingly.
+                    {
+                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                        if (_id == _currentAuthorization.ApplicationId)
+                            return new None<Error>();
+
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput +
+                            Misc.Constants.SPACE + Misc.Constants.Message_CurrentAuthorizationIdMismatch);
+                    },
+                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                    {
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                    },
+                    () =>
+                    {
+                        // Finally Block.
+                    },
+                    currentAuthorization, id)
+                    .ProcessOnNoneAsync<Error, IActionResult>
+                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                        {
+                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                                ? e is B2CBroker.Data.Errors.InvalidInput i
+                                    ? i._reason
+                                    : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid
+                                : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid;
+
+                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
+                        },
+                        async () => // Real Code - Goes in this Async Lambda.           
+                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                                (
+                                    // Business Method to Run, when validation Succeeds.
+                                    _orchestrator.UpdateCurrentAuthorization(currentAuthorization.ApplicationId,
+                                        FetchCurrentAuthenticatedUser(),
+                                        _mapper.Map<B2CBroker.Domain.CurrentAuthorization>(currentAuthorization), 
+                                        _repo),
+                                (e, l) =>
+                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
+                                    // relay sophisticated information back to client.
+                                    return new
+                                        B2CBroker.Data.Errors.CurrentAuthorizationNotUpdated
+                                        (Misc.Constants.Message_CurrentAuthorizationNotUpdated);
+                                },
+                                () =>
+                                {
+                                    // Finally Block.
+                                })
+                                .ConfigureAwait(Misc.Constants.FALSE))
+                            .Map(r => r != null
+                                        ? r.IsSuccess
+                                            ? (IActionResult)Ok(r.OperationResult)
+                                            : (IActionResult)base.BadRequest(r.OperationResult)
+                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotUpdated))
+                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotUpdated),
+                                error => error is B2CBroker.Data.Errors.CurrentAuthorizationNotUpdated)
+                            .Reduce(_ => (IActionResult)InternalServerError()));
+
+
+        [HttpDelete(Misc.Constants.API_Route_IdParam)]
+        public async Task<IActionResult> DeleteCurrentAuthorization(int id, int applicationId) =>
+            await TryCatch.SanitiseInput<int, int, Option<Error>>
+                    ((_authorizationId, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
+                    {
+                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                        if (_authorizationId > Misc.Constants.ZERO && _applicationId > Misc.Constants.ZERO)
+                        {
+                            return new None<Error>();
+                        }
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
+                    },
+                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                    {
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                    },
+                    () =>
+                    {
+                        // Finally Block.
+                    },
+                    id, applicationId)
+                    .ProcessOnNoneAsync<Error, IActionResult>
+                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                        {
+                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                                ? e is B2CBroker.Data.Errors.InvalidInput i
+                                    ? i._reason
+                                    : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid
+                                : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid;
+
+                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
+                        },
+                        async () => // Real Code - Goes in this Async Lambda.           
+                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                                (
+                                    // Business Method to Run, when validation Succeeds. 
+                                    _orchestrator.DeleteCurrentAuthorization(applicationId, 
+                                        FetchCurrentAuthenticatedUser(),
+                                        id.ToString(), // This is the Current Authorization's Authorization Id.
+                                        _repo),
+                                (e, l) =>
+                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
+                                    // relay sophisticated information back to client.
+                                    return new
+                                        B2CBroker.Data.Errors.CurrentAuthorizationNotDeleted
+                                        (Misc.Constants.Message_CurrentAuthorizationNotDeleted);
+                                },
+                                () =>
+                                {
+                                    // Finally Block.
+                                })
+                                .ConfigureAwait(Misc.Constants.FALSE))
+                            .Map(r => r != null
+                                        ? r.IsSuccess
+                                            ? (IActionResult)Ok(r.OperationResult)
+                                            : (IActionResult)base.BadRequest(r.OperationResult)
+                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotDeleted))
+                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotDeleted),
+                                error => error is B2CBroker.Data.Errors.CurrentAuthorizationNotDeleted)
+                            .Reduce(_ => (IActionResult)InternalServerError()));
+
+
+        #region Private(s)
+
+        private string FetchCurrentAuthenticatedUser() =>
+            string.Empty;
+
+        private IActionResult InternalServerError() =>
+            StatusCode(StatusCodes.Status500InternalServerError);
+
+        #endregion
+    }
+}
+
+
+
+
+
+using B2CBroker.Business;
+using B2CBroker.Domain;
+using AutoMapper;
+using Functional;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Threading.Tasks;
+
+namespace AzureAD_B2CBroker.Controllers
+{
+    [Route(Misc.Constants.API_Route)]
+    [ApiController]
+    public class HistoryAuthorizationController : ControllerBase
+    {
+        private readonly B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.HistoryAuthorization> _repo;
+        private readonly Orchestrator _orchestrator;
+        private readonly IMapper _mapper;
+        private readonly LinkGenerator _linkGenerator;
+
+        public HistoryAuthorizationController(B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.HistoryAuthorization> _passedRepo,
+            IMapper _passedMapper, LinkGenerator _passedLinkGenerator)
+        {
+            _repo = _passedRepo;
+            _orchestrator = new Orchestrator();
+            _mapper = _passedMapper;
+            _linkGenerator = _passedLinkGenerator;
+        }
+
+
+        // Sample: https://localhost:44375/api/HistoryAuthorization/5655?applicationId=2354
+        [HttpGet(Misc.Constants.API_Route_IdParam)]
+        public async Task<ActionResult<InputModels.HistoryAuthorization>> GetHistoryAuthorization(int id, int applicationId) =>
+            await TryCatch.SanitiseInput<int, int, Option<Error>>
+                ((_authorizationId, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    if (_authorizationId > Misc.Constants.ZERO
+                        && _applicationId > Misc.Constants.ZERO)
+                    {
+                        return new None<Error>();
+                    }
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to client.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                id, applicationId)
+                .ProcessOnNoneAsync<Error, ActionResult>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_HistoryAuthorizationNotFound
+                            : Misc.Constants.Message_HistoryAuthorizationNotFound;
+
+                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.HistoryAuthorization>>
+                            (
+                                // Business Method to Run, when validation Succeeds.                                
+                                _orchestrator.GetHistoryAuthorizationByStringId(applicationId, 
+                                    id.ToString(),
+                                    FetchCurrentAuthenticatedUser(), 
+                                    _repo),
+                            (e, l) =>
+                            {   // We have encountered exception in one of the Business Method(s)/Layers, relay 
+                                // sophisticated information back to client.
+                                return new
+                                    B2CBroker.Data.Errors.HistoryAuthorizationNotFound
+                                    (Misc.Constants.Error_HistoryAuthorizationNotFound + id);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null
+                                    ? (ActionResult)Ok(_mapper.Map<InputModels.HistoryAuthorization>(r))
+                                    : (ActionResult)base.NotFound(Misc.Constants.Message_HistoryAuthorizationNotFound))
+                        .Reduce(_ => base.NotFound(Misc.Constants.Message_HistoryAuthorizationNotFound),
+                            error => error is B2CBroker.Data.Errors.HistoryAuthorizationNotFound)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+        // Sample: https://localhost:44375/api/HistoryAuthorization?takeRows=3
+        [HttpGet]
+        public async Task<ActionResult<InputModels.HistoryAuthorization[]>> GetHistoryAuthorizations(
+            int authorizationId = Misc.Constants.ZERO, int applicationId = Misc.Constants.ZERO,
+            int skipRows = Misc.Constants.ZERO, int takeRows = Misc.Constants.TWENTY) =>
+            await TryCatch.SanitiseInput<int, int, Option<Error>>
+                ((_skipRows, _takeRows) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    if (_takeRows >= Misc.Constants.THREE && _takeRows <= Misc.Constants.TWO_FIFTY_FIVE
+                        && _skipRows >= Misc.Constants.ZERO)
+                    {
+                        return new None<Error>();
+                    }
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLengthForTakeAndSkip);
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                skipRows, takeRows)
+                .ProcessOnNoneAsync<Error, ActionResult>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_HistoryAuthorizationNotFound
+                            : Misc.Constants.Message_HistoryAuthorizationNotFound;
+
+                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.HistoryAuthorization[]>>
+                            (
+                                // Business Method to Run, when validation Succeeds.
+                                _orchestrator.GetHistoryAuthorizations(applicationId, FetchCurrentAuthenticatedUser(),
+                                    authorizationId, _repo, Misc.Constants.FALSE, skipRows, takeRows),
+                            (e, l) =>
+                            {
+                                // We have encountered exception in one of the Business Method(s)/Layers, 
+                                // relay sophisticated information back to client.
+                                return new B2CBroker.Data.Errors.NoDataFound(Misc.Constants.Message_NoDataFound);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null
+                                ? (ActionResult)Ok(_mapper.Map<InputModels.HistoryAuthorization[]>(r))
+                                : (ActionResult)base.NotFound(Misc.Constants.Message_NoDataFound))
+                        .Reduce(_ => base.NotFound(Misc.Constants.Message_NoDataFound),
+                            error => error is B2CBroker.Data.Errors.HistoryAuthorizationNotFound)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+        [HttpPost]
+        public async Task<ActionResult<InputModels.HistoryAuthorization>> Post(InputModels.HistoryAuthorization historyAuthorization) =>
+            await TryCatch.SanitiseInput<InputModels.HistoryAuthorization, Option<Error>>
+                ((_historyauthorization) =>   // Check/Validate supplied Input Data, act accordingly.
+                {
+                    // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                    return new None<Error>();
+                },
+                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                {
+                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                },
+                () =>
+                {
+                    // Finally Block.
+                },
+                historyAuthorization)
+                .ProcessOnNoneAsync<Error, ActionResult<InputModels.HistoryAuthorization>>
+                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                    {
+                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                            ? e is B2CBroker.Data.Errors.InvalidInput i
+                                ? i._reason
+                                : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid
+                            : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid;
+
+                        return Task.FromResult((ActionResult<InputModels.HistoryAuthorization>)base.BadRequest(_errorMessage));
+                    },
+                    async () => // Real Code - Goes in this Async Lambda.           
+                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                            (
+                                // Business Method to Run, when validation Succeeds.
+                                _orchestrator.SaveHistoryAuthorization(historyAuthorization.ApplicationId,
+                                    FetchCurrentAuthenticatedUser(),
+                                    _mapper.Map<B2CBroker.Domain.HistoryAuthorization>(historyAuthorization),
+                                    _repo),
+                            (e, l) =>
+                            {
+                                // We have encountered exception in one of the Business Method(s)/Layers, 
+                                //relay sophisticated information back to client.
+                                return new
+                                    B2CBroker.Data.Errors.HistoryAuthorizationNotAdded
+                                    (Misc.Constants.Message_HistoryAuthorizationNotAdded);
+                            },
+                            () =>
+                            {
+                                // Finally Block.
+                            })
+                            .ConfigureAwait(Misc.Constants.FALSE))
+                        .Map(r => r != null
+                                    ? r.IsSuccess
+                                        ? (ActionResult)Created(r.OperationResult, historyAuthorization)
+                                        : (ActionResult)base.BadRequest(r.OperationResult)
+                                    : (ActionResult)base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotAdded))
+                        .Reduce(_ => base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotAdded),
+                            error => error is B2CBroker.Data.Errors.HistoryAuthorizationNotAdded)
+                        .Reduce(_ => (ActionResult)InternalServerError()));
+
+
+        [HttpPut(Misc.Constants.API_Route_IdParam)]
+        public async Task<IActionResult> Put(int id, InputModels.HistoryAuthorization historyAuthorization) =>
+            await TryCatch.SanitiseInput<InputModels.HistoryAuthorization, int, Option<Error>>
+                    ((_historyAuthorization, _id) =>   // Check/Validate supplied Input Data, act accordingly.
+                    {
+                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                        if (_id == _historyAuthorization.ApplicationId)
+                            return new None<Error>();
+
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput +
+                            Misc.Constants.SPACE + Misc.Constants.Message_HistoryAuthorizationIdMismatch);
+                    },
+                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                    {
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                    },
+                    () =>
+                    {
+                        // Finally Block.
+                    },
+                    historyAuthorization, id)
+                    .ProcessOnNoneAsync<Error, IActionResult>
+                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                        {
+                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                                ? e is B2CBroker.Data.Errors.InvalidInput i
+                                    ? i._reason
+                                    : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid
+                                : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid;
+
+                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
+                        },
+                        async () => // Real Code - Goes in this Async Lambda.           
+                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                                (
+                                    // Business Method to Run, when validation Succeeds.
+                                    _orchestrator.UpdateHistoryAuthorization(historyAuthorization.ApplicationId,
+                                        FetchCurrentAuthenticatedUser(),
+                                        _mapper.Map<B2CBroker.Domain.HistoryAuthorization>(historyAuthorization),
+                                        _repo),
+                                (e, l) =>
+                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
+                                    // relay sophisticated information back to client.
+                                    return new
+                                        B2CBroker.Data.Errors.HistoryAuthorizationNotUpdated
+                                        (Misc.Constants.Message_HistoryAuthorizationNotUpdated);
+                                },
+                                () =>
+                                {
+                                    // Finally Block.
+                                })
+                                .ConfigureAwait(Misc.Constants.FALSE))
+                            .Map(r => r != null
+                                        ? r.IsSuccess
+                                            ? (IActionResult)Ok(r.OperationResult)
+                                            : (IActionResult)base.BadRequest(r.OperationResult)
+                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotUpdated))
+                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotUpdated),
+                                error => error is B2CBroker.Data.Errors.HistoryAuthorizationNotUpdated)
+                            .Reduce(_ => (IActionResult)InternalServerError()));
+
+
+        [HttpDelete(Misc.Constants.API_Route_IdParam)]
+        public async Task<IActionResult> DeleteHistoryAuthorization(int id, int applicationId) =>
+            await TryCatch.SanitiseInput<int, int, Option<Error>>
+                    ((_authorizationId, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
+                    {
+                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
+                        if (_authorizationId > Misc.Constants.ZERO && _applicationId > Misc.Constants.ZERO)
+                        {
+                            return new None<Error>();
+                        }
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
+                    },
+                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
+                    {
+                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
+                    },
+                    () =>
+                    {
+                        // Finally Block.
+                    },
+                    id, applicationId)
+                    .ProcessOnNoneAsync<Error, IActionResult>
+                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
+                        {
+                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
+                                ? e is B2CBroker.Data.Errors.InvalidInput i
+                                    ? i._reason
+                                    : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid
+                                : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid;
+
+                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
+                        },
+                        async () => // Real Code - Goes in this Async Lambda.           
+                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
+                                (
+                                    // Business Method to Run, when validation Succeeds. 
+                                    _orchestrator.DeleteHistoryAuthorization(applicationId,
+                                        FetchCurrentAuthenticatedUser(),
+                                        id.ToString(), // This is the History Authorization's Authorization Id.
+                                        _repo),
+                                (e, l) =>
+                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
+                                    // relay sophisticated information back to client.
+                                    return new
+                                        B2CBroker.Data.Errors.HistoryAuthorizationNotDeleted
+                                        (Misc.Constants.Message_HistoryAuthorizationNotDeleted);
+                                },
+                                () =>
+                                {
+                                    // Finally Block.
+                                })
+                                .ConfigureAwait(Misc.Constants.FALSE))
+                            .Map(r => r != null
+                                        ? r.IsSuccess
+                                            ? (IActionResult)Ok(r.OperationResult)
+                                            : (IActionResult)base.BadRequest(r.OperationResult)
+                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotDeleted))
+                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotDeleted),
+                                error => error is B2CBroker.Data.Errors.HistoryAuthorizationNotDeleted)
+                            .Reduce(_ => (IActionResult)InternalServerError()));
+
+
+        #region Private(s)
+
+        private string FetchCurrentAuthenticatedUser() =>
+            string.Empty;
+
+        private IActionResult InternalServerError() =>
+            StatusCode(StatusCodes.Status500InternalServerError);
+
+        #endregion
+    }
+}
+
+
 
 
 
