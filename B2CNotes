@@ -1,500 +1,1442 @@
-
-#region API - Input Validation Error(s).
-
-        public const string Error_InvalidInputLength = "Supplied input is either too long or too short. Please check the supplied input value.";
-        public const string Error_InvalidInput = "Failed! to parse input. Please check your supplied input.";
-
-        public const string Message_ApplicationNotFound = "Requested application with supplied details could not be found!";
-        public const string Error_InvalidInputLengthForTakeAndSkip = "Supplied 'skipRows' and/or 'takeRows' value is incorrect. 'takeRows' must be greater than or equal to 3 and less than 255 and 'skipRows' must be greater than 0.";
-
-        public const string Message_ApplicationDetailsNotValid = "Provided application details are not valid, please check supplied details.";
-
-        public const string Message_AzureApplicationIdMismatch = "Application Id provided in model does not match with the one mentioned in uri.";
-
-        public const string Message_AuthorizationNotFound = "Requested authorization with supplied details could not be found!";
-
-        public const string Message_AuthorizationDetailsNotValid = "Provided authorization details are not valid, please check supplied details.";
-
-        public const string Message_ApplicationIdMismatch = "Application Id provided in model does not match with the one mentioned in uri.";
-
-        public const string Message_AuthorizationIdMismatch = "Authorization's Application Id provided in model does not match with the one mentioned in uri.";
-
-        public const string Message_CurrentAuthorizationIdMismatch = "Current Authorization's Application Id provided in model does not match with the one mentioned in uri.";
-
-        public const string Message_HistoryAuthorizationIdMismatch = "History Authorization's Application Id provided in model does not match with the one mentioned in uri.";
-
-        public const string Message_CurrentAuthorizationNotFound = "Requested current authorization with supplied details could not be found!";
-
-        public const string Message_HistoryAuthorizationNotFound = "Requested history authorization with supplied details could not be found!";
-
-        public const string Message_CurrentAuthorizationDetailsNotValid = "Provided current authorization details are not valid, please check supplied details.";
-
-        public const string Message_HistoryAuthorizationDetailsNotValid = "Provided history authorization details are not valid, please check supplied details.";
+builder.Property(p => p.Id)
+    .Metadata.AfterSaveBehavior = Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore;
+					
+					
+import { Injectable, OnInit, OnDestroy } from "@angular/core";
+import { HttpClient, HttpHeaders, HttpResponse } from "@angular/common/http";
+import { Router } from "@angular/router";
+import { Observable, of } from "rxjs";
+import { catchError, map, tap, concat } from "rxjs/operators";
+import { Constant } from "./Constant";
+import { BroadcastService, MsalService } from "@azure/msal-angular";
+import { Subscription } from "rxjs/Subscription";
+import { User } from "msal";
+import { ApplicationModel } from "../models/application";
+import { AuthorizationModel } from "../models/authorization";
+import { CurrentAuthorizationModel } from "../models/currentauthorization";
+import { HistoryAuthorizationModel } from "../models/historyauthorization";
 
 
-        #endregion
+@Injectable()
+export class DataService implements OnInit, OnDestroy {
+
+    private userData: any = Constant.NULL;
+    private subscription: Subscription;
+    private _user: User = Constant.NULL;
+
+    public subscription_Init : boolean = Constant.FALSE;
 
 
-		
-		int parsedAuthorizationId = Int32.Parse(_id);
-
-                            if (_applicationId != default(int) && _applicationId > Misc.Constants.ZERO)
-                            {
-                                CurrentAuthorization _currentAuthorization = await _context
-                                .CurrentAuthorization
-                                .FirstOrDefaultAsync
-                                (u => u.AuthorizationId == parsedAuthorizationId && u.ApplicationId == _applicationId);
-
-                                return _currentAuthorization;
-                            }
-                            else
-                            {
-                                CurrentAuthorization _currentAuthorization = await _context
-                                .CurrentAuthorization
-                                .FirstOrDefaultAsync // Fetch Current Authorization for all Applications.
-                                (u => u.AuthorizationId == parsedAuthorizationId); 
-
-                                return _currentAuthorization;
-                            }
-							
-							
-							
-		
-
-int parsedAuthorizationId = 
-                                _authorizationIdAsString != string.Empty 
-                                ? Int32.Parse(_authorizationIdAsString) 
-                                : Misc.Constants.ZERO;
-
-                            bool onlyApplicationIdAvailable = 
-                                parsedAuthorizationId > Misc.Constants.ZERO 
-                                ? Misc.Constants.TRUE 
-                                : Misc.Constants.FALSE;
-
-                            bool onlyAuthorizationIdAvailable =
-                            (_applicationId != default(int) && _applicationId > Misc.Constants.ZERO) 
-                            ? Misc.Constants.TRUE 
-                            : Misc.Constants.FALSE;
-
-                            bool bothIdsAvailable = 
-                                onlyApplicationIdAvailable && onlyAuthorizationIdAvailable 
-                                ? Misc.Constants.TRUE 
-                                : Misc.Constants.FALSE;
-                            
-                            if (bothIdsAvailable)
-                            {
-                                query = query.Where(currentAuthorization =>
-                                            currentAuthorization.AuthorizationId == parsedAuthorizationId &&
-                                            currentAuthorization.ApplicationId == _applicationId);
-                            }
-                            else if (onlyAuthorizationIdAvailable)
-                            {
-                                query = query.Where(currentAuthorization =>
-                                        currentAuthorization.AuthorizationId == parsedAuthorizationId);
-                            }
-                            else if (onlyApplicationIdAvailable)
-                            {
-                                query = query.Where(currentAuthorization =>
-                                        currentAuthorization.ApplicationId == _applicationId);
-                            }
+    constructor(private http: HttpClient, 
+        private router: Router,
+        private authService: MsalService,
+        private broadcastService: BroadcastService) { }
 
 
+    private handleError<T>(operation = Constant.Operation, result?: T) {
+        return (error: any): Observable<T> => {    
+            console.log(`${operation} Please try again!`);
 
-							
-							
-							
-							int parseAuthorizationId = Int32.Parse(_id);
+            console.log(error);
+            this.router.navigate([Constant.ErrorPageUrl, {message: `${operation} Please try again!`, type: error.name}]);             
+            return of(result as T); // Let the app keep running by returning an empty result.
+        };
+    }
 
-                            if (_applicationId != default(int) && _applicationId > Misc.Constants.ZERO)
-                            {
-                                HistoryAuthorization _historyAuthorization = await _context
-                                .HistoryAuthorization
-                                .FirstOrDefaultAsync
-                                (u => u.AuthorizationId == parseAuthorizationId && u.ApplicationId == _applicationId);
+    ngOnInit() {
+        this.BroadCastSubscription_Init();
+    }
 
-                                return _historyAuthorization;
-                            }
-                            else
-                            {
-                                HistoryAuthorization _historyAuthorization = await _context
-                                .HistoryAuthorization
-                                .FirstOrDefaultAsync // Fetch Current Authorization for all Applications.
-                                (u => u.AuthorizationId == parseAuthorizationId);
+    ngOnDestroy() {
+    }
 
-                                return _historyAuthorization;
-                            }
-							
-							
-							
-							
-							
-							int parsedAuthorizationId =
-                                _authorizationIdAsString != string.Empty
-                                ? Int32.Parse(_authorizationIdAsString)
-                                : Misc.Constants.ZERO;
-
-                            bool onlyApplicationIdAvailable =
-                                parsedAuthorizationId > Misc.Constants.ZERO
-                                ? Misc.Constants.TRUE
-                                : Misc.Constants.FALSE;
-
-                            bool onlyAuthorizationIdAvailable =
-                            (_applicationId != default(int) && _applicationId > Misc.Constants.ZERO)
-                            ? Misc.Constants.TRUE
-                            : Misc.Constants.FALSE;
-
-                            bool bothIdsAvailable =
-                                onlyApplicationIdAvailable && onlyAuthorizationIdAvailable
-                                ? Misc.Constants.TRUE
-                                : Misc.Constants.FALSE;
-
-                            if (bothIdsAvailable)
-                            {
-                                query = query.Where(historyAuthorization =>
-                                            historyAuthorization.AuthorizationId == parsedAuthorizationId &&
-                                            historyAuthorization.ApplicationId == _applicationId);
-                            }
-                            else if (onlyAuthorizationIdAvailable)
-                            {
-                                query = query.Where(historyAuthorization =>
-                                        historyAuthorization.AuthorizationId == parsedAuthorizationId);
-                            }
-                            else if (onlyApplicationIdAvailable)
-                            {
-                                query = query.Where(historyAuthorization =>
-                                        historyAuthorization.ApplicationId == _applicationId);
-                            }
-							
-
-
-
-using AutoMapper;
-using B2CBroker.Business;
-using Functional;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using System.Threading.Tasks;
-
-namespace AzureAD_B2CBroker.Controllers
-{
-    [Route(Misc.Constants.API_Route)]
-    [ApiController]
-    public class ApplicationController : ControllerBase
+    private BroadCastSubscription_Init(): boolean 
     {
-        private readonly B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.Application> _repo;
-        private readonly Orchestrator _orchestrator;
-        private readonly IMapper _mapper;
-        private readonly LinkGenerator _linkGenerator;
-
-        public ApplicationController(B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.Application> _passedRepo,
-            IMapper _passedMapper, LinkGenerator _passedLinkGenerator)
-        {
-            _repo = _passedRepo;
-            _orchestrator = new Orchestrator();
-            _mapper = _passedMapper;
-            _linkGenerator = _passedLinkGenerator;
+        if (!this.subscription_Init) {
+    
+          this.subscription = this.broadcastService.subscribe(Constant.MsalAcquireTokenSuccess, (payload) => {
+            console.log(" In DataService BroadCastSubscription_Init()----->>> acquire token SUCCESS " + JSON.stringify(payload));
+          });
+    
+          // Will work for acquireTokenSilent and acquireTokenPopup
+          this.subscription = this.broadcastService.subscribe(Constant.MsalAcquireTokenFailure, (payload) => {
+            console.log("In DataService BroadCastSubscription_Init()----->>> acquire token FALIURE " + JSON.stringify(payload))
+    
+            if (payload.errorDesc.indexOf(Constant.ConsentRequired) !== Constant.NegativeOne ||
+              payload.errorDesc.indexOf(Constant.InteractionRequired) != Constant.NegativeOne) {
+    
+              this.authService.acquireTokenPopup([Constant.CallB2CWebScope]).then((token) => {
+                console.log("In DataService BroadCastSubscription_Init()----->>> acquire token SUCCESS TOKEN IS ->>>> " + JSON.stringify(token))
+              }, (error) => {
+                console.log("In DataService BroadCastSubscription_Init()----->>> acquire token FAILURE Error IS ->>>> " + JSON.stringify(error))
+              });
+            }
+          });
+          this.subscription_Init = Constant.TRUE;
+        } else {
+          //console.log("*** NOT Data Service NOT ***** :::::: NOT Subcribing To Events NOT :::::::::::::::::::");
         }
+        return this.subscription_Init;
+      }
+
+    public FetchUserName() : string {
+        // here 
+        if (this._user === Constant.NULL || this._user === Constant.Undefined) {
+            this.FetchUser();
+            if (this._user === Constant.NULL || this._user === Constant.Undefined) {
+              return Constant.NULL; // User Signed Out.
+            }
+        }
+         return this._user.name;
+    }
+
+    private FetchUser(): User {
+        this._user = this.authService.getUser();    
+        return this._user;
+    }
+
+    public async FetchAccessToken(): Promise<boolean> {
+        await this.authService.acquireTokenSilent([Constant.CallB2CWebScope]);    
+        return Constant.TRUE;
+    }
+
+    private getUserProfile() {
+        this.http.get<any>(Constant.GRAPH_Url)
+          .subscribe(data => {
+            this.userData = data;    
+          }, error => {
+            console.error("DataService getUserProfile()----->>> Http get request to MS Graph failed" + JSON.stringify(error));
+          });
+    }
 
 
-        // Sample: https://localhost:44315/api/application/ae91c46e-b814-46e1-9261-1bfea1fe11be
-        [HttpGet(Misc.Constants.API_Route_IdParam)]
-        public async Task<ActionResult<InputModels.Application>> GetApplication(string id) =>
-            await TryCatch.SanitiseInput<string, Option<Error>>
-                ((_id) =>   // Check/Validate supplied Input Data, act accordingly.
+
+    // #region 1 -> Application(s) API related Interaction(s). 
+
+    identityTest(): Observable<string> {
+        return this.http.get<string>(Constant.API_URL + "identity")
+          .pipe(
+            tap(res => {
+                console.log("The Returned result is --> " + res);
+                return JSON.stringify(res);
+            }),
+        catchError(this.handleError<any>("Calling IDENTITY Failed!")));
+     }
+
+    // #endregion
+
+
+    // #region 1.1 ->Fetch Application(s).
+
+    public applications: ApplicationModel[] = [];
+    public currentApplication: ApplicationModel;
+
+    public currentApplicationToEdit: ApplicationModel;
+    public currentApplicationToDelete: ApplicationModel;
+
+    public deleteApplicationBottomSheetClicked: boolean = Constant.FALSE;
+
+    loadApplications(): Observable<ApplicationModel[]> {
+      return this.http.get<ApplicationModel[]>(Constant.API_URL + Constant.API_APPLICATIONS_ENDPOINT)
+      .pipe(
+        tap(res => {
+          this.applications = res;
+          return JSON.stringify(res);
+        }),
+        catchError(this.handleError<any>(Constant.FetchApplicationsFailed)));
+    }
+
+    loadApplication(_azureAppplicationId: string): Observable<ApplicationModel> {
+      return this.http.get<ApplicationModel>(Constant.API_URL + Constant.API_APPLICATIONS_ENDPOINT + Constant.Forward_Slash + _azureAppplicationId)
+      .pipe(
+        tap(res => {
+          this.currentApplication = res;
+          return JSON.stringify(res);
+        }),
+        catchError(this.handleError<any>(Constant.FetchApplicationsFailed)));
+    }
+
+  // #endregion
+
+  // #region 1.2 Update Airline(s)
+
+  public editApplication(_applicationToEdit: ApplicationModel) {
+    this.currentApplicationToEdit = _applicationToEdit;
+  } 
+
+  public updateApplication(_application: ApplicationModel): Observable<string> {
+    return this.http.put(Constant.API_URL + Constant.API_APPLICATIONS_ENDPOINT + Constant.Forward_Slash + _application.azureApplicationId,
+      _application, { responseType: 'text' })
+      .pipe(
+        tap(res => { return res; }),
+        catchError(this.handleError<any>(Constant.UpdateApplicationFailed)));
+  } 
+
+  // #endregion
+
+  // #region 1.3 Insert Airline.
+
+  public addApplication(_application: ApplicationModel): Observable<ApplicationModel> {
+
+    let headers = new HttpHeaders({
+      "Content-Type": "application/json; charset=utf-8",
+    });
+    let options = { headers: headers };
+
+    return this.http.post<ApplicationModel>(Constant.API_URL + Constant.API_APPLICATIONS_ENDPOINT,
+      _application, options)
+      .pipe(
+        tap(res => { return JSON.stringify(res); }), //console.log("Add response"); console.log(res);
+        catchError(this.handleError<any>(Constant.AddApplicationFailed)));
+  }
+
+  // #endregion
+
+
+  // #region 1.4 Delete Airline.
+
+  public deleteApplication(_airlineToDelete: ApplicationModel) {
+    this.currentApplicationToDelete = _airlineToDelete;
+  }
+
+  public deleteApplicationBottomSheetConfirmed(_confirmed: boolean) {
+    this.deleteApplicationBottomSheetClicked = _confirmed;
+  }
+
+  public deleteChoosenApplication(_application: ApplicationModel): Observable<string> {
+    return this.http.delete(Constant.API_URL + Constant.API_APPLICATIONS_ENDPOINT + Constant.Forward_Slash + _application.azureApplicationId,
+      { responseType: 'text' })
+      .pipe(
+        tap(res => { return res; }),
+        catchError(this.handleError<any>(Constant.DeleteApplicationFailed, ApplicationModel)));
+  } 
+
+
+  // #endregion
+
+
+  // #region 2 -> Application(s) API related Interaction(s).
+
+  public authorizations: AuthorizationModel[] = [];
+  public currentAuthorization: AuthorizationModel;
+
+  public viewAuthorizationsForApplicationId: number = Constant.Undefined;
+
+  public viewCurrentAuthorizationForApplicationId: number = Constant.Undefined;
+  public viewCurrentAuthorizationForAuthorizationId : number = Constant.Undefined;
+
+  public currentAuthorizationToEdit: AuthorizationModel = Constant.Undefined;;
+  public currentAuthorizationToDelete: AuthorizationModel = Constant.Undefined;;
+  public deleteAuthorizationBottomSheetClicked: boolean = Constant.FALSE;
+
+
+  loadAuthorizations(): Observable<AuthorizationModel[]> {
+    return this.http.get<AuthorizationModel[]>(Constant.API_URL + Constant.API_AUTHORIZATIONS_ENDPOINT +
+      Constant.Question_Mark + Constant.Application_Id + Constant.Equals_Sign + this.viewAuthorizationsForApplicationId)
+    .pipe(
+      tap(res => {
+        this.authorizations = res;
+        return JSON.stringify(res);
+      }),
+      catchError(this.handleError<any>(Constant.FetchAuthorizationsFailed)));
+  }
+
+  loadAuthorization(_email: string, _applicationId: number): Observable<AuthorizationModel> {
+    return this.http.get<AuthorizationModel>(Constant.API_URL + Constant.API_AUTHORIZATIONS_ENDPOINT + 
+      Constant.Forward_Slash + _email + Constant.Question_Mark + 
+      Constant.Application_Id + Constant.Equals_Sign + _applicationId)
+    .pipe(
+      tap(res => {
+        this.currentAuthorization = res;
+        return JSON.stringify(res);
+      }),
+      catchError(this.handleError<any>(Constant.FetchAuthorizationFailed)));
+  }
+
+  public editAuthorization(_authorizationToEdit: AuthorizationModel) {
+    this.currentAuthorizationToEdit = _authorizationToEdit;
+  } 
+
+  public updateAuthorization(_authorization: AuthorizationModel): Observable<string> {
+    return this.http.put(Constant.API_URL + Constant.API_AUTHORIZATIONS_ENDPOINT + Constant.Forward_Slash + _authorization.applicationId,
+      _authorization, { responseType: 'text' })
+      .pipe(
+        tap(res => { return res; }),
+        catchError(this.handleError<any>(Constant.UpdateAuthorizationFailed)));
+  }
+
+  public addAuthorization(_authorization: AuthorizationModel): Observable<AuthorizationModel> {
+
+    let headers = new HttpHeaders({
+      "Content-Type": "application/json; charset=utf-8",
+    });
+    let options = { headers: headers };
+
+    return this.http.post<AuthorizationModel>(Constant.API_URL + Constant.API_AUTHORIZATIONS_ENDPOINT,
+      _authorization, options)
+      .pipe(
+        tap(res => { return JSON.stringify(res); }), 
+        catchError(this.handleError<any>(Constant.AddAuthorizationFailed)));
+  }
+
+
+  public deleteAuthorization(_authorizationToDelete: AuthorizationModel) {
+    this.currentAuthorizationToDelete = _authorizationToDelete;
+  }
+
+  public deleteAuthorizationBottomSheetConfirmed(_confirmed: boolean) {
+    this.deleteAuthorizationBottomSheetClicked = _confirmed;
+  }
+
+
+  public deleteChoosenAuthorization(_authorization: AuthorizationModel): Observable<string> {
+    return this.http.delete(Constant.API_URL + Constant.API_AUTHORIZATIONS_ENDPOINT + 
+      Constant.Forward_Slash + _authorization.email + Constant.Question_Mark + 
+      Constant.Application_Id + Constant.Equals_Sign + _authorization.applicationId,
+      { responseType: 'text' })
+      .pipe(
+        tap(res => { return res; }),
+        catchError(this.handleError<any>(Constant.DeleteAuthorizationFailed)));
+  }
+
+
+  // #endregion
+
+
+}
+
+
+
+
+-------------------------------------------------
+
+import { ConfigService } from "./configService";
+import appsettings from "../../assets/appsettings.json";
+
+
+export class Constant
+{
+    public _config: ConfigService;
+
+    // #region - Pick below values from Config.JSON File
+    public static API_URL: string = undefined;
+    public static AzureClientId: string = undefined;
+    public static AzureAuthority: string = undefined;
+    public static RedirectURL: string = undefined;
+    public static PostLogoutRedirectURL: string = undefined;
+    public static GRAPH_Url: string= undefined; 
+    public static CallB2CWebScope: string = undefined; 
+    // #endregion
+
+    constructor(private _fetchedConfig: ConfigService)  {
+        this._config = _fetchedConfig;
+    }
+
+    static initialize() {
+        console.log("  ---> **** Constants Initialise Start **** <---");
+        console.log(appsettings);
+    
+        Constant.API_URL = appsettings.ApiUrl;
+        Constant.AzureClientId = appsettings.ClientId;
+        Constant.AzureAuthority = appsettings.Authority;
+        Constant.RedirectURL = appsettings.RedirectUrl;
+        Constant.PostLogoutRedirectURL = appsettings.PostLogoutRedirectUrl; 
+        Constant.GRAPH_Url = appsettings.GRAPH_Url;
+        Constant.CallB2CWebScope = appsettings.CallB2CWebScope;
+
+        console.log("  ---> **** Constants Initialised Complete **** <---");
+    }
+
+    // #region - MSAL Settings.
+
+    // CallB2CWebScope should be from config file.
+    
+
+    public static GRAPH_UserReadScope = "user.read";
+    public static OpenIdScope = "openid";
+    public static ProfileScope = "profile";
+
+    public static SessionStorage = "sessionStorage";
+    public static CorrelationId = "1234";
+    // #endregion
+
+
+    public static Error_Type_InternalServiceError = "Internal Service Error";
+    public static Error_FailedToFetchDetails = "Failed to fetch details, please try again.";
+
+
+
+    // #region - Routes.
+    public static DefaultRoute = "";
+
+    public static Dashboard = "dashboard";
+    public static DashboardUrl = "/dashboard";
+
+    public static ErrorPage = "error";
+    public static ErrorPageUrl = "/error";
+
+    public static Application = "application";
+    public static ApplicationUrl = "/application";
+
+    public static ApplicationAdd = "application-add";
+    public static ApplicationAddUrl = "/application-add";
+
+    public static ApplicationEdit = "application-edit";
+    public static ApplicationEditUrl = "/application-edit";
+
+    public static ApplicationDelete = "application-delete";
+    public static ApplicationDeleteUrl = "/application-delete";
+
+    public static Authorization = "authorization";
+    public static AuthorizationUrl = "/authorization";
+
+    public static AuthorizationAdd = "authorization-add";
+    public static AuthorizationAddUrl = "/authorization-add";
+
+    public static AuthorizationEdit = "authorization-edit";
+    public static AuthorizationEditUrl = "/authorization-edit";
+
+    public static AuthorizationDelete = "authorization-delete";
+    public static AuthorizationDeleteUrl = "/authorization-delete";
+
+    public static CurrentAuthorization = "current-authorization";
+    public static CurrentAuthorizationUrl = "/current-authorization";
+
+    public static CurrentAuthorizationnAdd = "current-authorization-add";
+    public static CurrentAuthorizationAddUrl = "/current-authorization-add";
+
+    public static CurrentAuthorizationEdit = "current-authorization-edit";
+    public static CurrentAuthorizationEditUrl = "/current-authorization-edit";
+
+    public static CurrentAuthorizationDelete = "current-authorization-delete";
+    public static CurrentAuthorizationDeleteUrl = "/current-authorization-delete";
+
+    public static HistoryAuthorization = "history-authorization";
+    public static HistoryAuthorizationUrl = "/history-authorization";
+
+    public static HistoryAuthorizationnAdd = "history-authorization-add";
+    public static HistoryAuthorizationAddUrl = "/history-authorization-add";
+
+    public static HistoryAuthorizationEdit = "history-authorization-edit";
+    public static HistoryAuthorizationEditUrl = "/history-authorization-edit";
+
+    public static HistoryAuthorizationDelete = "history-authorization-delete";
+    public static HistoryAuthorizationDeleteUrl = "/history-authorization-delete";
+
+    // #endregion
+
+    public static ApplicationColumn_AzureApplicationId = "azureApplicationId";
+    public static ApplicationColumn_DisplayName = "displayName";
+    public static ApplicationColumn_Id = "id";
+
+    public static AuthorizationColumn_applicationId = "applicationId";
+    public static AuthorizationColumn_email = "email";
+    public static AuthorizationColumn_Id = "id";
+
+    public static API_Operations_Url = "operations";
+
+    public static API_Application_Url = "application";
+    public static API_Authorization_Url = "authorization";
+    public static API_CurrentAuthorization_Url = "currentauthorization";
+    public static API_HistoryAuthorization_Url = "historyauthorization";
+
+    public static Date_AU_Locale = "en-AU";
+    public static Includes_GMT = "GMT";
+
+    public static ServerError = "Server error";
+    public static FolderPath_AppSettings = "assets/appsettings.json";
+    public static FolderPath_AppSettingsToFoldersUp = "../../assets/appsettings.json";
+    public static FolderPath_VersionAzureSettings = "assets/versionazure.json";
+
+    public static MsalAcquireTokenSuccess = "msal:acquireTokenSuccess";
+    public static MsalAcquireTokenFailure = "msal:acquireTokenFailure";
+
+    public static MsalLoginSuccess = "msal:loginSuccess";
+    public static MsalLoginFailure = "msal:loginFailure";
+
+    public static ConsentRequired = "consent_required";
+    public static InteractionRequired = "interaction_required";
+    public static NegativeOne: number = -1;
+    public static Operation = "operation";
+
+    public static PermissionErrorMessageAccess:string ="You don't have permission to access this feature, please contact the administrator.";
+    public static Error_Type_Permission = "Permission"; 
+
+
+    public static FetchApplicationsFailed: string = "Fetch Applications has Failed.";
+    public static FetchAuthorizationsFailed: string = "Fetch Authorizations has Failed.";
+    public static FetchCurrentAuthorizationsFailed: string = "Fetch Current Authorizations has Failed.";
+    public static FetchHistoryAuthorizationsFailed: string = "Fetch History of Authorizations has Failed.";
+    public static FetchApplicationFailed: string = "Fetch Application has Failed.";
+    public static FetchAuthorizationFailed: string = "Fetch Authorization has Failed.";
+    public static FetchCurrentAuthorizationFailed: string = "Fetch Current Authorization has Failed.";
+    public static FetchHistoryAuthorizationFailed: string = "Fetch History of Authorization has Failed.";
+
+    public static AddApplicationFailed: string = "Add Application has Failed.";
+    public static AddAuthorizationFailed: string = "Add Authorization has Failed.";
+    public static AddCurrentAuthorizationFailed: string = "Add Current Authorization has Failed.";
+    public static AddHistoryAuthorizationFailed: string = "Add History of Authorization has Failed.";
+
+    public static UpdateApplicationFailed: string = "Update Application has Failed.";
+    public static UpdateAuthorizationFailed: string = "Update Authorization has Failed.";
+    public static UpdateCurrentAuthorizationFailed: string = "Update Current Authorization has Failed.";
+    public static UpdateHistoryAuthorizationFailed: string = "Update History of Authorization has Failed.";
+
+    public static DeleteApplicationFailed: string = "Delete Application has Failed.";
+    public static DeleteAuthorizationFailed: string = "Delete Authorization has Failed.";
+    public static DeleteCurrentAuthorizationFailed: string = "Delete Current Authorization has Failed.";
+    public static DeleteHistoryAuthorizationFailed: string = "Delete History of Authorization has Failed.";
+
+    public static Error_FailedToUpdateApplication = "Failed to update application, please try again.";
+    public static Error_FailedToUpdateAuthorization = "Failed to update authorization, please try again.";
+    public static Error_FailedToUpdateCurrentAuthorization = "Failed to update Current Authorization, please try again.";
+    public static Error_FailedToUpdateHistoryAuthorization = "Failed to update History Authorization, please try again.";
+
+    public static Error_EmailCannotBeUpdated = "Email address is a key and as such cannot be updated. This functionality is not available as part of this release.";
+
+    public static Forward_Slash = "/";
+    public static Question_Mark = "?";
+    public static Equals_Sign = "=";
+
+    public static Application_Id = "applicationId";
+
+    public static API_APPLICATIONS_ENDPOINT = "application";
+    public static API_AUTHORIZATIONS_ENDPOINT = "authorization";
+    public static API_CURRENT_AUTHORIZATIONS_ENDPOINT = "currentauthorization";
+    public static API_HISTORY_AUTHORIZATIONS_ENDPOINT = "historyauthorization";
+
+    public static AzureApplicationIdMaxLength: number = 36; 
+    public static ApplicationDisplayNameMaxLength: number = 100; 
+    public static ApplicationDisplayNameMinLength: number = 5;
+
+    public static AuthorizationEmailMaxLength: number = 500; 
+    public static AuthorizationEmailMinLength: number = 5;
+
+    public static Save_SuccessfulForApplication = "Save Successful. New application details have been added.";
+    public static Save_SuccessfulForAuthorization = "Save Successful. New authorization details have been added.";
+    public static Save_SuccessfulForCurrentAuthorization = "Save Successful. New Current Authorization details have been added.";
+    public static Save_SuccessfulForHistoryAuthorization = "Save Successful. New History Authorization details have been added.";
+
+    public static Error_FailedToSaveApplication = "Failed to add new application details, please try again.";
+    public static Error_FailedToSaveAuthorization = "Failed to add new authorization details, please try again.";
+    public static Error_FailedToSaveCurrentAuthorization = "Failed to add new Current Authorization details, please try again.";
+    public static Error_FailedToSaveHistoryAuthorization = "Failed to add new History Authorization details, please try again.";
+
+    public static FloatLabel_AUTO = "auto";
+
+    public static TRUE: boolean  = true;
+    public static FALSE: boolean  = false;
+    public static NULL  = null;
+    public static String_Undefined: string = undefined; 
+    public static Undefined = undefined; 
+}
+
+
+
+----------------------------------------
+
+{ path: Constant.Application, component: Application, canActivate: [MsalGuard] },
+  { path: Constant.ApplicationAdd, component: ApplicationAdd, canActivate: [MsalGuard] },
+  { path: Constant.ApplicationEdit, component: ApplicationEdit, canActivate: [MsalGuard] },
+  { path: Constant.ApplicationDelete, component: ApplicationDelete, canActivate: [MsalGuard] },
+  { path: Constant.Authorization, component: Authorization, canActivate: [MsalGuard] },
+  { path: Constant.AuthorizationAdd, component: AuthorizationAdd, canActivate: [MsalGuard] },
+  { path: Constant.AuthorizationEdit, component: AuthorizationEdit, canActivate: [MsalGuard] },
+  { path: Constant.AuthorizationDelete, component: AuthorizationDelete, canActivate: [MsalGuard] }
+  
+  
+ -------------------------------------------------------------
+ 
+ 
+ export class ApplicationModel {
+    azureApplicationId: string;
+    displayName: string;
+    id: number;
+}
+
+
+export class AuthorizationModel {
+    email: string;
+    applicationId: number;
+    id: number;
+  }
+  
+  export class ConfigModel {
+    ApiUrl: string;
+    Authority: string;
+    ClientId : string;
+    RedirectUrl: string;
+    PostLogoutRedirectUrl: string;
+    GRAPH_Url: string;
+    CallB2CWebScope: string;
+  }
+  
+  export class CurrentAuthorizationModel {
+    applicationId: number;
+    authorizationId: number;
+    role: string;
+    status: number;
+  }
+  
+  
+  export class HistoryAuthorizationModel {
+    applicationId: number;
+    authorizationId: number;
+    role: string;
+    previousstatus: number;
+  }
+  
+  
+  ----------------------------
+  
+  
+  <mat-list>
+    <h3 matSubheader class="parent">
+      <button mat-raised-button mat-elevation-z8 color="warn"
+              matTooltip="Click here to confirm deletion of {{data.displayName}} from system"
+              (click)="deleteApplication($event)">
+        <mat-icon>delete</mat-icon>
+        Confirm Deletion of {{ data.displayName }}
+      </button>
+    </h3>
+</mat-list>
+  
+  
+  
+  
+  ````````````````` application.component
+  
+      <mat-card>
+
+        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+      
+        <div class="m-2">
+      
+          <div class="row">
+      
+            <div class="col-8 alert alert-info mat-elevation-z8" role="alert">
+              <h4 class="alert-heading">
+                <mat-icon matListIcon>build</mat-icon>
+                Application(s)
+              </h4>
+              <hr>
+              <p class="top">
+                Below is the list of all Application(s) that are managed by B2C
+              </p>
+            </div>
+      
+            <div class="col-4">
+              <button class="buttoncolor" mat-icon-button mat-elevation-z8 color="warn"
+                      matTooltip="Click here to Add New Application"
+                      (click)="addApplication()">
+                <mat-icon>apps plus_one</mat-icon>
+              </button>
+            </div>      
+          </div>
+      
+          <div >
+      
+            <div style="text-align:center">      
+              <mat-table [dataSource]="applications" matSort class="mat-table mat-elevation-z8">
+      
+                <!--- Note that these columns can be defined in any order.
+                The actual rendered columns are set as a property on the row definition" -->
+                <!-- Position Column -->
+                <ng-container matColumnDef="id">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header> Id </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="azureApplicationId">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header> Azure Application Id </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.azureApplicationId}} </mat-cell>
+                </ng-container>
+      
+                <!-- Name Column -->
+                <ng-container matColumnDef="displayName">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header> Display Name </mat-header-cell>
+                  <mat-cell *matCellDef="let element"> {{element.displayName}} </mat-cell>
+                </ng-container>
+      
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <mat-row style="cursor: pointer" *matRowDef="let row; columns: displayedColumns;" (click)="getApplicationRecord(row.azureApplicationId)">
+                </mat-row>
+              </mat-table>      
+              <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>      
+            </div>     
+          </div>      
+      
+          <div class="row">      
+            <div *ngIf="rowClicked" style="text-align:center">
+              <!-- Div 1-->
+              <div class="card text-info rowbackground p-2 mat-elevation-z8">
+                <!--Div 2-->
+      
+                <mat-list>
+                  <h3 matSubheader class="parent">
+                    <button class="center" mat-raised-button mat-elevation-z8 color="accent"
+                            matTooltip="Click here to Edit details for {{currentSelectedApplication.displayName}}"
+                            (click)="editApplication(currentSelectedApplication)">
+                      <mat-icon>edit</mat-icon>
+                      Edit - {{currentSelectedApplication.displayName}}
+                    </button>
+                  </h3>
+      
+                  <h3 matSubheader class="parent">
+                    <button class="center" mat-raised-button mat-elevation-z8 color="accent"
+                            matTooltip="Click here to Delete {{currentSelectedApplication.displayName}} from system"
+                            (click)="deleteApplication(currentSelectedApplication)">
+                      <mat-icon>delete</mat-icon>
+                      Delete - {{currentSelectedApplication.displayName}}
+                    </button>
+                  </h3>
+
+                  <h3 matSubheader class="parent">
+                    <button class="center" mat-raised-button mat-elevation-z8 color="accent"
+                    matTooltip="Click here to view authorizations for {{currentSelectedApplication.displayName}}"
+                            (click)="viewAuthorization(currentSelectedApplication.id)">
+                      <mat-icon>pageview</mat-icon>
+                      View Authorization(s) - {{currentSelectedApplication.displayName}}
+                    </button>
+                  </h3>
+      
+                  <br />
+      
+                  <mat-divider></mat-divider>
+      
+                  <h3 matSubheader>Current Authorization(s) listed for {{currentSelectedApplication.azureApplicationId}}</h3>
+
+                  <!-- <mat-list-item style="cursor: pointer" *ngFor="let authorization of currentSelectedApplication.authorizations"
+                                 (click)="FetchAuthorization(authorization)">
+                    <mat-icon matListIcon>flight</mat-icon>
+                    <h4 matLine>Users Email Address: {{authorization.email}}</h4>
+                  </mat-list-item> -->
+
+                </mat-list>
+      
+              </div> <!--Div 2 Ended-->
+            </div> <!--Div 1 Ended-->     
+          </div>      
+        </div>
+      </mat-card>
+	  
+	  import { Component, OnInit, ViewChild, OnDestroy } from "@angular/core";
+import { DataService } from "../shared/dataService";
+import { Router } from '@angular/router';
+import { Constant } from "../shared/Constant";
+
+import { MatPaginator } from "@angular/material/paginator";
+import { MatSort } from "@angular/material/sort";
+import { MatTableDataSource } from "@angular/material/table";
+import { LoaderService } from "../loader/loader.service";
+import { ApplicationModel } from "../models/application";
+
+@Component({
+  selector: "application",
+  templateUrl: "application.component.html",
+  styleUrls: ["application.component.css"]
+})
+export class Application implements OnInit { 
+    constructor(private _dataService: DataService, private _loader: LoaderService, private _router: Router) { }
+
+    public displayedColumns: string[] =
+    [
+      Constant.ApplicationColumn_Id, 
+      Constant.ApplicationColumn_AzureApplicationId, 
+      Constant.ApplicationColumn_DisplayName
+    ];
+    public applications: MatTableDataSource<ApplicationModel>;
+
+    public currentSelectedApplication: ApplicationModel;
+
+    public rowClicked: boolean = Constant.FALSE;
+    errorMessage: string = Constant.String_Undefined;
+    private _username: string = Constant.String_Undefined;
+
+    @ViewChild(MatSort, { static: Constant.TRUE }) sort: MatSort;
+    @ViewChild(MatPaginator, { static: Constant.TRUE }) paginator: MatPaginator;
+
+    async ngOnInit() {
+
+      this._loader.show();   
+      await this._dataService.FetchAccessToken();      
+
+      this._username = this._dataService.FetchUserName();
+
+      if (this._username !== Constant.NULL && this._username !== Constant.String_Undefined) 
+      {
+        this._dataService.loadApplications()
+        .subscribe(
+          {
+            next: responseData => {
+              this.applications = new MatTableDataSource<ApplicationModel>(responseData);
+
+              this.applications.sort = this.sort;
+              this.applications.paginator = this.paginator;
+              this._loader.hide();
+            },
+            error: err => {
+              this._loader.hide();
+              this.errorMessage = Constant.FetchApplicationsFailed;
+              this._router.navigate([Constant.ErrorPageUrl,
                 {
-                    if (_id.Length == Misc.Constants.THIRTY_SIX)
-                    {
-                        return new None<Error>();
-                    }
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to client.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                id)
-                .ProcessOnNoneAsync<Error, ActionResult>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_ApplicationNotFound
-                            : Misc.Constants.Message_ApplicationNotFound;
+                  message: Constant.FetchApplicationsFailed,
+                  type: Constant.Error_Type_InternalServiceError
+                }]); 
+            }
+        });
+      } else{
+        // No user Found - Present Error Page.      
+        this._loader.hide();
+        this._router.navigate([Constant.ErrorPageUrl,
+        {
+          message: Constant.PermissionErrorMessageAccess,
+          type: Constant.Error_Type_Permission
+        }]); 
+      }
+    }
 
-                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.Application>>
-                            (
-                                // Business Method to Run, when validation Succeeds.
-                                _orchestrator.GetApplicationByStringId(id, FetchCurrentAuthenticatedUser(), _repo),                
-                            (e, l) =>
-                            {   // We have encountered exception in one of the Business Method(s)/Layers, relay 
-                                // sophisticated information back to client.
-                                return new
-                                    B2CBroker.Data.Errors.ApplicationNotFound(Misc.Constants.Error_ApplicationNotFound + id);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null 
-                                    ? (ActionResult)Ok(_mapper.Map<InputModels.Application>(r)) 
-                                    : (ActionResult)base.NotFound(Misc.Constants.Message_ApplicationNotFound))
-                        .Reduce(_ => base.NotFound(Misc.Constants.Message_ApplicationNotFound), 
-                            error => error is B2CBroker.Data.Errors.ApplicationNotFound)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
+    public getApplicationRecord(_id: string) {
+      this._loader.show(); 
+      this._dataService.loadApplication(_id)
+        .subscribe(
+          {
+            next: responseData => {          
+              this.currentSelectedApplication = responseData;              
+              this.rowClicked = Constant.TRUE;
+              this._loader.hide();
+            },
+            error: err => {
+              this._loader.hide();
+              this.errorMessage = Constant.FetchApplicationFailed;              
+            }
+          });   
+    }
+  
+    public editApplication(_applicationToEdit: ApplicationModel) {
+      this._dataService.editApplication(_applicationToEdit);
+      this._router.navigate([Constant.ApplicationEditUrl]);
+    }
+  
+    public deleteApplication(_applicationToDelete: ApplicationModel) {
+      this._dataService.deleteApplication(_applicationToDelete);
+      this._router.navigate([Constant.ApplicationDeleteUrl]); 
+    }
+  
+    public addApplication() {
+      this._router.navigate([Constant.ApplicationAddUrl]);
+    }
+  
+    public viewAuthorization(_id: number) {
+      this._dataService.viewAuthorizationsForApplicationId = _id;
+      this._router.navigate([Constant.AuthorizationUrl]);
+    }
+}
+      
+	  
+	  ``````````````````````````````````` application add ```````````````
+	  
+	  
+
+<mat-card>
+    <div *ngIf="errorMessageActive" class="alert alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="successMessageActive" class="alert alert-success">{{ successMessage }}</div>
+  
+    <form novalidate [formGroup]="addApplicationForm"
+          autocomplete="off" (ngSubmit)="saveNewApplication(addApplicationForm.value)" fxLayout="column wrap"
+          fxLayoutAlign="center center" fxLayoutGap="10px">
+  
+      <mat-card-title>Add a new Application</mat-card-title>
+  
+      <mat-form-field>
+        <input matInput #inputApplicationId placeholder="Azure Application Id"
+               maxlength="36" id="azureApplicationId" formControlName="azureApplicationId" />
+  
+        <mat-hint align="center">{{inputApplicationId.value?.length || 0}}/36</mat-hint>
+  
+        <mat-error *ngIf="hasError('azureApplicationId', 'required')">Azure Application Id is required</mat-error>
+        <mat-error *ngIf="hasError('azureApplicationId', 'maxlength')">Only 36 characters are allowed</mat-error>
+        <mat-error *ngIf="hasError('azureApplicationId', 'minlength')">At least 36 characters are required</mat-error>
+      </mat-form-field>
+  
+      <mat-form-field>
+        <input matInput #inputdisplayname placeholder="Application Display Name"
+               maxlength="100" id="displayname" formControlName="displayname" />
+  
+        <mat-hint align="center">{{inputdisplayname.value?.length || 0}}/100</mat-hint>
+  
+        <mat-error *ngIf="hasError('displayname', 'required')">Display Name is required</mat-error>
+        <mat-error *ngIf="hasError('displayname', 'maxlength')">Only 100 characters are allowed</mat-error>
+        <mat-error *ngIf="hasError('displayname', 'minlength')">At least 5 characters are required</mat-error>
+      </mat-form-field>
+  
+  
+      <mat-card-actions align="center">
+        <button mat-raised-button color="primary"
+                matTooltip="Click here to Save details for {{inputApplicationId.value}}"
+                type="submit" [disabled]="!addApplicationForm.valid || isSaveDisabled()">
+          <mat-icon>save</mat-icon>
+          Save Details
+        </button>
+  
+        <button type="button" mat-raised-button color="warn" (click)="cancelSave()"
+                matTooltip="Click here to Cancel" [disabled]="isSaveDisabled()">
+          <mat-icon>cancel_presentation</mat-icon>
+          Cancel
+        </button>
+      </mat-card-actions>
+  
+      <mat-card-actions align="center">
+        <button type="button" mat-raised-button color="accent" (click)="backToApplications()"
+                matTooltip="Click here to go back to applications page">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Application(s)
+        </button>
+      </mat-card-actions>
+    </form>
+  </mat-card>
+  
+  
+  import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { DataService } from "../shared/dataService";
+import { Router } from '@angular/router';
+import { Constant } from "../shared/Constant";
+import { FormControl, FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
+import { LoaderService } from "../loader/loader.service";
+import { ApplicationModel } from "../models/application";
+
+@Component({
+  selector: "applicationadd",
+  templateUrl: "applicationadd.component.html",
+  styleUrls: ["applicationadd.component.css"]
+})
+export class ApplicationAdd implements OnInit { 
+
+    addApplicationForm: FormGroup;
+    errorMessageActive: boolean = Constant.FALSE;
+    successMessageActive: boolean = Constant.FALSE;
+
+    errorMessage: string = Constant.String_Undefined;
+    successMessage: string = Constant.String_Undefined;
+    isSaveButtonDisabled: boolean;
+
+    private _username: string = Constant.String_Undefined;
+
+    constructor(private _dataService: DataService, private _router: Router, 
+        private _loader: LoaderService, fb: FormBuilder,
+        private _changeDetector: ChangeDetectorRef) {
+    
+        this.addApplicationForm = fb.group({
+          hideRequired: Constant.FALSE,
+          floatLabel: Constant.FloatLabel_AUTO
+        });
+    
+        this.addApplicationForm = new FormGroup(
+          {
+            azureApplicationId: new FormControl({ value: Constant.String_Undefined, disabled: Constant.FALSE },
+              [Validators.required, Validators.maxLength(Constant.AzureApplicationIdMaxLength),
+                Validators.minLength(Constant.AzureApplicationIdMaxLength)]),
+            displayname: new FormControl({ value: Constant.String_Undefined, disabled: Constant.FALSE },
+              [Validators.required, Validators.maxLength(Constant.ApplicationDisplayNameMaxLength), 
+                Validators.minLength(Constant.ApplicationDisplayNameMinLength)])
+          });
+    }
+
+    async ngOnInit() {
+        this._loader.show();   
+        await this._dataService.FetchAccessToken();   
+    
+        this._username = this._dataService.FetchUserName();
+        if (this._username !== Constant.NULL && this._username !== Constant.String_Undefined) {
+          this.isSaveButtonDisabled = Constant.FALSE;
+          this._loader.hide();
+        } else {
+          // No user Found - Present Error Page.
+          this._loader.hide();
+          this._router.navigate([Constant.ErrorPageUrl,
+          {
+            message: Constant.PermissionErrorMessageAccess,
+            type: Constant.Error_Type_Permission
+          }]); 
+        }
+    }
+
+    ngAfterContentChecked(): void {
+        this._changeDetector.detectChanges();
+    }
+    
+    cancelSave() {
+        this._router.navigate([Constant.DashboardUrl]);
+    }
+    
+    backToApplications() {
+        this._router.navigate([Constant.ApplicationUrl]);
+    }
+    
+    isSaveDisabled() {
+        return this.isSaveButtonDisabled;
+    }
+
+    public saveNewApplication = (_passedApplication) => {
+        if (this.addApplicationForm.valid) {
+          this.saveNewApplicationViaApi(_passedApplication);
+        }
+    }
+    
+    private saveNewApplicationViaApi(_application: ApplicationModel) {
+        this._loader.show(); 
+        this._dataService.addApplication(_application)
+          .subscribe(
+            {
+              next: response => {
+                this.isSaveButtonDisabled = Constant.TRUE;
+                if (response !== Constant.Undefined) {
+                  this.successMessage = Constant.Save_SuccessfulForApplication;
+                  this.successMessageActive = Constant.TRUE;
+                  this.errorMessageActive = Constant.FALSE;
+    
+                  this._loader.hide(); 
+                }
+                else {
+                  this.errorMessage = Constant.Error_FailedToSaveApplication;
+                  this.errorMessageActive = Constant.TRUE;
+                  this.successMessageActive = Constant.FALSE;
+    
+                  this._loader.hide(); 
+                }
+    
+              },
+              error: err => {
+                this.errorMessage = Constant.Error_FailedToSaveApplication;
+                this.errorMessageActive = Constant.TRUE;
+                this.successMessageActive = Constant.FALSE;
+    
+                this._loader.hide();
+            }
+        });
+      }
+    
+    public hasError = (controlName: string, errorName: string) => {
+        return this.addApplicationForm.controls[controlName].hasError(errorName);
+    }
+}
 
 
 
-        // Sample: https://localhost:44315/api/applications?takeRows=3
-        [HttpGet]
-        public async Task<ActionResult<InputModels.Application[]>> GetApplications(int skipRows = Misc.Constants.ZERO, 
-            int takeRows = Misc.Constants.TWENTY) =>
-            await TryCatch.SanitiseInput<int, int, Option<Error>>
-                ((_skipRows, _takeRows) =>   // Check/Validate supplied Input Data, act accordingly.
-                {
-                    if (_takeRows >= Misc.Constants.THREE && _takeRows <= Misc.Constants.TWO_FIFTY_FIVE
-                        && _skipRows >= Misc.Constants.ZERO)
-                    {
-                        return new None<Error>();
-                    }
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLengthForTakeAndSkip);
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                skipRows, takeRows)
-                .ProcessOnNoneAsync<Error, ActionResult>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_ApplicationNotFound
-                            : Misc.Constants.Message_ApplicationNotFound;
-
-                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.Application[]>>
-                            (
-                                // Business Method to Run, when validation Succeeds.
-                                _orchestrator.GetApplications(string.Empty, FetchCurrentAuthenticatedUser(),
-                                    _repo, Misc.Constants.FALSE, skipRows, takeRows),                
-                            (e, l) =>
-                            {   // We have encountered exception in one of the Business Method(s)/Layers, relay sophisticated information back to client.
-                                return new B2CBroker.Data.Errors.NoDataFound(Misc.Constants.Message_NoDataFound);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null 
-                                ? (ActionResult)Ok(_mapper.Map<InputModels.Application[]>(r)) 
-                                : (ActionResult)base.NotFound(Misc.Constants.Message_NoDataFound))
-                        .Reduce(_ => base.NotFound(Misc.Constants.Message_NoDataFound), 
-                            error => error is B2CBroker.Data.Errors.ApplicationNotFound)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
+``````````````````````````````````` application delete 
 
 
-        [HttpPost]
-        public async Task<ActionResult<InputModels.Application>> Post(InputModels.Application application) =>
-            await TryCatch.SanitiseInput<InputModels.Application, Option<Error>>
-                ((_application) =>   // Check/Validate supplied Input Data, act accordingly.
-                {
-                    // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                    return new None<Error>();
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                application)
-                .ProcessOnNoneAsync<Error, ActionResult<InputModels.Application>>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_ApplicationDetailsNotValid
-                            : Misc.Constants.Message_ApplicationDetailsNotValid;
+<mat-card>
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  
+    <form novalidate [formGroup]="deleteApplicationForm"
+          autocomplete="off" (ngSubmit)="deleteApplication()" fxLayout="column wrap"
+          fxLayoutAlign="center center" fxLayoutGap="10px">
+  
+      <mat-card-title>Delete Application {{inputdisplayname.value}}</mat-card-title>
+  
+      <mat-card-content>
+        <mat-form-field>
+          <input matInput #inputApplicationId placeholder="Azure Application Id"
+                 maxlength="36" id="azureApplicationId" formControlName="azureApplicationId" />
+  
+          <mat-hint align="center">{{inputApplicationId.value?.length || 0}}/36</mat-hint>
+  
+          <mat-error *ngIf="hasError('azureApplicationId', 'required')">Azure Application Id is required</mat-error>
+          <mat-error *ngIf="hasError('azureApplicationId', 'maxlength')">Only 36 characters are allowed</mat-error>
+          <mat-error *ngIf="hasError('azureApplicationId', 'minlength')">At least 36 characters are required</mat-error>
+        </mat-form-field>
+  
+        <mat-form-field>
+          <input matInput #inputdisplayname placeholder="Application Name"
+                 maxlength="100" id="displayname" formControlName="displayname" />
+  
+          <mat-hint align="center">{{inputdisplayname.value?.length || 0}}/30</mat-hint>
+  
+          <mat-error *ngIf="hasError('displayname', 'required')">Application Display name is required</mat-error>
+          <mat-error *ngIf="hasError('displayname', 'maxlength')">Only 100 characters are allowed</mat-error>
+        </mat-form-field>
+      </mat-card-content>
+  
+      <mat-card-actions align="center">
+        <button mat-raised-button color="primary"
+                matTooltip="Click here to delete details for {{inputdisplayname.value}}"
+                type="submit" [disabled]="isDeleteDisabled()">
+          <mat-icon>delete</mat-icon>
+          Delete {{inputdisplayname.value}}
+        </button>
+  
+        <button type="button" mat-raised-button color="warn" (click)="cancelDelete()"
+                matTooltip="Click here to cancel and return to settings" [disabled]="isDeleteDisabled()">
+          <mat-icon>cancel_presentation</mat-icon>
+          Cancel
+        </button>
+      </mat-card-actions>
+  
+  
+      <mat-card-actions align="center">
+        <button type="button" mat-raised-button color="accent" (click)="backToApplications()"
+                matTooltip="Click here to go back to Applications page">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Applications
+        </button>
+      </mat-card-actions>
+    </form>
+</mat-card>
+  
+  
+  import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef, Inject } from "@angular/core";
+import { DataService } from "../shared/dataService";
+import { Router } from '@angular/router';
+import { Constant } from "../shared/Constant";
+import { FormControl, FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
+import { LoaderService } from "../loader/loader.service";
+import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from "@angular/material/bottom-sheet";
+import { ApplicationModel } from "../models/application";
 
-                        return Task.FromResult((ActionResult<InputModels.Application>)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                            (
-                                // Business Method to Run, when validation Succeeds.
-                                _orchestrator.SaveApplication(string.Empty, FetchCurrentAuthenticatedUser(), 
-                                    _mapper.Map<B2CBroker.Domain.Application>(application), _repo),                
-                            (e, l) =>
-                            {   
-                                // We have encountered exception in one of the Business Method(s)/Layers, 
-                                //relay sophisticated information back to client.
-                                return new 
-                                    B2CBroker.Data.Errors.ApplicationNotAdded(Misc.Constants.Message_ApplicationNotAdded);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null
-                                    ? r.IsSuccess
-                                        ? (ActionResult)Created(r.OperationResult, application)
-                                        : (ActionResult)base.BadRequest(r.OperationResult)
-                                    : (ActionResult)base.BadRequest(Misc.Constants.Message_ApplicationNotAdded))
-                        .Reduce(_ => base.BadRequest(Misc.Constants.Message_ApplicationNotAdded), 
-                            error => error is B2CBroker.Data.Errors.ApplicationNotAdded)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
+@Component({
+  selector: "applicationdelete",
+  templateUrl: "applicationdelete.component.html",
+  styleUrls: ["applicationdelete.component.css"]
+})
+export class ApplicationDelete implements OnInit { 
 
+    deleteApplicationForm: FormGroup;
+    errorMessage: string = Constant.String_Undefined;
+    successMessage: string = Constant.String_Undefined;
+    private application: ApplicationModel;
+    isDeleteButtonDisabled: boolean;
+    private _username: string = Constant.String_Undefined;
 
-        [HttpPut(Misc.Constants.API_Route_IdParam)]
-        public async Task<IActionResult> Put(string id, InputModels.Application application) =>
-            await TryCatch.SanitiseInput<InputModels.Application, string, Option<Error>>
-                    ((_application, _id) =>   // Check/Validate supplied Input Data, act accordingly.
-                    {
-                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                        if (_id.ToLowerInvariant() == _application.AzureApplicationId.ToLowerInvariant())
-                            return new None<Error>();
+    constructor(private _dataService: DataService, private _router: Router, 
+        private _loader: LoaderService, fb: FormBuilder, private _bottomSheet: MatBottomSheet) {
+        if (this._dataService.currentApplicationToDelete !== Constant.NULL && this._dataService.currentApplicationToDelete !== Constant.Undefined) {
+          this.deleteApplicationForm = fb.group({
+            hideRequired: Constant.FALSE,
+            floatLabel: Constant.FloatLabel_AUTO
+          });
+    
+          this.deleteApplicationForm = new FormGroup(
+            {
+                azureApplicationId: new FormControl({ value: this._dataService.currentApplicationToDelete.azureApplicationId, disabled: Constant.TRUE },
+                    [Validators.required, Validators.maxLength(Constant.AzureApplicationIdMaxLength)]),
+                displayname: new FormControl({ value: this._dataService.currentApplicationToDelete.displayName, disabled: Constant.TRUE },
+                    [Validators.required, Validators.maxLength(Constant.ApplicationDisplayNameMaxLength),
+                        Validators.minLength(Constant.ApplicationDisplayNameMinLength)])
+            });
+        }
+        else {
+          _router.navigate([Constant.ApplicationUrl]);
+        }  
+    }
 
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput +
-                            Misc.Constants.SPACE + Misc.Constants.Message_AzureApplicationIdMismatch);
-                    },
-                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                    {
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                    },
-                    () =>
-                    {
-                        // Finally Block.
-                    },
-                    application, id)
-                    .ProcessOnNoneAsync<Error, IActionResult>
-                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                        {
-                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                                ? e is B2CBroker.Data.Errors.InvalidInput i
-                                    ? i._reason
-                                    : Misc.Constants.Message_ApplicationDetailsNotValid
-                                : Misc.Constants.Message_ApplicationDetailsNotValid;
+    async ngOnInit() {
+        this._loader.show();  
+        await this._dataService.FetchAccessToken();    
+    
+        this._username = this._dataService.FetchUserName();
+        if (this._username !== Constant.NULL && this._username !== Constant.String_Undefined) {
+          this.application = this._dataService.currentApplicationToDelete;
+          this._dataService.deleteApplicationBottomSheetConfirmed(Constant.FALSE);
+          this.isDeleteButtonDisabled = Constant.FALSE;
+          this._loader.hide();
+        } else {
+          // No user Found - Present Error Page.
+          this._loader.hide();
+          this._router.navigate([Constant.ErrorPageUrl,
+          {
+            message: Constant.PermissionErrorMessageAccess,
+            type: Constant.Error_Type_Permission
+          }]);
+        }
+    }
 
-                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
+    cancelDelete() {
+        this._router.navigate([Constant.DashboardUrl]);
+    }
+    
+    backToApplications() {
+        this._router.navigate([Constant.ApplicationUrl]);
+    }
+    
+    isDeleteDisabled() {
+        return this.isDeleteButtonDisabled;
+    }
+
+    deleteApplication() {
+        const _bottomSheetRef = this._bottomSheet.open(ApplicationDeleteBottomSheet, {
+          data: { displayName: [this.application.displayName] }
+        });
+    
+        _bottomSheetRef
+          .afterDismissed()
+          .subscribe(
+            {
+              next: (responseData) => {
+                if (this._dataService.deleteApplicationBottomSheetClicked) {
+    
+                  this._loader.show();
+    
+                  this._dataService.deleteChoosenApplication(this.application)
+                    .subscribe(
+                      {
+                        next: responseData => {
+                          this.isDeleteButtonDisabled = Constant.TRUE;
+                          this.successMessage = responseData;
+    
+                          this._loader.hide();
                         },
-                        async () => // Real Code - Goes in this Async Lambda.           
-                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                                (
-                                    // Business Method to Run, when validation Succeeds.
-                                    _orchestrator.UpdateApplication(id, FetchCurrentAuthenticatedUser(),
-                                        _mapper.Map<B2CBroker.Domain.Application>(application), _repo),                
-                                (e, l) =>
-                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
-                                    // relay sophisticated information back to client.
-                                    return new 
-                                        B2CBroker.Data.Errors.ApplicationNotUpdated(Misc.Constants.Message_ApplicationNotUpdated);
-                                },
-                                () =>
-                                {
-                                    // Finally Block.
-                                })
-                                .ConfigureAwait(Misc.Constants.FALSE))
-                            .Map(r => r != null
-                                        ? r.IsSuccess
-                                            ? (IActionResult)Ok(r.OperationResult)
-                                            : (IActionResult)base.BadRequest(r.OperationResult)
-                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_ApplicationNotUpdated))
-                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_ApplicationNotUpdated), 
-                                error => error is B2CBroker.Data.Errors.ApplicationNotUpdated)
-                            .Reduce(_ => (IActionResult)InternalServerError()));
-
-
-
-        [HttpDelete(Misc.Constants.API_Route_IdParam)]
-        public async Task<IActionResult> DeleteApplication(string id) =>
-            await TryCatch.SanitiseInput<string, Option<Error>>
-                    ((_applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
-                    {
-                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                        if (_applicationId.Length == Misc.Constants.THIRTY_SIX)
-                        {
-                            return new None<Error>();
+                        error: err => {
+                          this.isDeleteButtonDisabled = Constant.FALSE;
+                          this.errorMessage = Constant.DeleteApplicationFailed;
+    
+                          this._loader.hide();
                         }
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
-                    },
-                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                    {
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                    },
-                    () =>
-                    {
-                        // Finally Block.
-                    },
-                    id)
-                    .ProcessOnNoneAsync<Error, IActionResult>
-                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                        {
-                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                                ? e is B2CBroker.Data.Errors.InvalidInput i
-                                    ? i._reason
-                                    : Misc.Constants.Message_ApplicationDetailsNotValid
-                                : Misc.Constants.Message_ApplicationDetailsNotValid;
+                      });
+                }
+              },
+              error: (err) => {
+                // Nothing here.
+              }
+            }); 
+    }
 
-                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
-                        },
-                        async () => // Real Code - Goes in this Async Lambda.           
-                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                                (
-                                    // Business Method to Run, when validation Succeeds. 
-                                    _orchestrator.DeleteApplication(id, FetchCurrentAuthenticatedUser(), 
-                                        id, _repo),               
-                                (e, l) =>
-                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
-                                    // relay sophisticated information back to client.
-                                    return new 
-                                        B2CBroker.Data.Errors.ApplicationNotDeleted(Misc.Constants.Message_ApplicationNotDeleted);
-                                },
-                                () =>
-                                {
-                                    // Finally Block.
-                                })
-                                .ConfigureAwait(Misc.Constants.FALSE))
-                            .Map(r => r != null
-                                        ? r.IsSuccess
-                                            ? (IActionResult)Ok(r.OperationResult)
-                                            : (IActionResult)base.BadRequest(r.OperationResult)
-                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_ApplicationNotDeleted))
-                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_ApplicationNotDeleted), 
-                                error => error is B2CBroker.Data.Errors.ApplicationNotDeleted)
-                            .Reduce(_ => (IActionResult)InternalServerError()));
+    public hasError = (controlName: string, errorName: string) => {
+        return this.deleteApplicationForm.controls[controlName].hasError(errorName);
+    }
+}
+
+@Component({
+    selector: 'application-delete-bottom-sheet-dialog',
+    templateUrl: 'application-delete-bottom-sheet.html',
+  })
+  export class ApplicationDeleteBottomSheet {
+    constructor(private _bottomSheetRef: MatBottomSheetRef<ApplicationDeleteBottomSheet>,
+      private _dataServiceApplicationBottomSheet: DataService,
+      @Inject(MAT_BOTTOM_SHEET_DATA) public data: any) { }
+  
+    openLink(event: MouseEvent): void {
+      this._bottomSheetRef.dismiss();
+      event.preventDefault();
+    }
+  
+    deleteApplication(event: MouseEvent) {
+      this._dataServiceApplicationBottomSheet
+        .deleteApplicationBottomSheetConfirmed(Constant.TRUE);
+  
+      this._bottomSheetRef.dismiss();
+      event.preventDefault();
+    }
+}
 
 
-        #region Private(s)
+````````````````````````````````````````````` application edit ````````````
 
-        private string FetchCurrentAuthenticatedUser() =>
-            string.Empty;
 
-        private IActionResult InternalServerError() =>
-            StatusCode(StatusCodes.Status500InternalServerError);
+<mat-card>
+    <div *ngIf="errorMessageActive" class="alert alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="successMessageActive" class="alert alert-success">{{ successMessage }}</div>
+  
+    <form novalidate [formGroup]="updateApplicationForm"
+          autocomplete="off" (ngSubmit)="saveEditOfApplication(updateApplicationForm.value)" fxLayout="column wrap"
+          fxLayoutAlign="center center" fxLayoutGap="10px">
+  
+      <mat-card-title>Update Application</mat-card-title>
+  
+      <mat-card-content>
+  
+        <mat-form-field>
+          <input matInput #inputazureApplicationId placeholder="Azure Application Id"
+                 maxlength="36" id="azureApplicationId" formControlName="azureApplicationId" />
+  
+          <mat-hint align="center">{{inputazureApplicationId.value?.length || 0}}/36</mat-hint>
+  
+          <mat-error *ngIf="hasError('azureApplicationId', 'required')">Azure Application Id is required</mat-error>
+        <mat-error *ngIf="hasError('azureApplicationId', 'maxlength')">Only 36 characters are allowed</mat-error>
+        <mat-error *ngIf="hasError('azureApplicationId', 'minlength')">At least 36 characters are required</mat-error>
+        </mat-form-field>
+  
+        <mat-form-field>
+          <input matInput #inputdisplayName placeholder="Display Name"
+                 maxlength="100" id="displayName" formControlName="displayName" />
+  
+          <mat-hint align="center">{{inputdisplayName.value?.length || 0}}/100</mat-hint>
+  
+          <mat-error *ngIf="hasError('displayName', 'required')">Display Name is required</mat-error>
+        <mat-error *ngIf="hasError('displayName', 'maxlength')">Only 100 characters are allowed</mat-error>
+        <mat-error *ngIf="hasError('displayName', 'minlength')">At least 5 characters are required</mat-error>
+        </mat-form-field>  
+  
+      </mat-card-content>
+  
+  
+      <mat-card-actions align="center">
+  
+        <button mat-raised-button color="primary"
+                matTooltip="Click here to Save details for {{inputazureApplicationId.value}}"
+                type="submit" [disabled]="!updateApplicationForm.valid || isSaveDisabled(updateApplicationForm.value)">
+          <mat-icon>save</mat-icon>
+          Update Application
+        </button>
+  
+        <button type="button" mat-raised-button color="warn" (click)="cancelUpdate()"
+                matTooltip="Click here to Cancel" [disabled]="isSaveDisabled(undefined)">
+          <mat-icon>cancel_presentation</mat-icon>
+          Cancel
+        </button>
+  
+  
+      </mat-card-actions>
+  
+      <mat-card-actions align="center">
+        <button class="button" mat-raised-button mat-elevation-z8 color="accent"
+                matTooltip="Click here to go back to applications page"
+                type="button" (click)="backToApplications()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Applications
+        </button>
+      </mat-card-actions>
+  
+    </form>
+  </mat-card>
+  
+  
+  import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { DataService } from "../shared/dataService";
+import { Router } from '@angular/router';
+import { Constant } from "../shared/Constant";
+import { FormControl, FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
+import { LoaderService } from "../loader/loader.service";
+import { ApplicationModel } from "../models/application";
 
-        #endregion
+@Component({
+  selector: "applicationedit",
+  templateUrl: "applicationedit.component.html",
+  styleUrls: ["applicationedit.component.css"]
+})
+export class ApplicationEdit implements OnInit { 
+
+    updateApplicationForm: FormGroup;
+    errorMessage: string = Constant.String_Undefined;
+    successMessage: string = Constant.String_Undefined;
+
+    isSaveButtonDisabled: boolean;
+
+    errorMessageActive: boolean = Constant.FALSE;
+    successMessageActive: boolean = Constant.FALSE;
+
+    public _username: string = Constant.String_Undefined;
+    private updatedApplication: ApplicationModel = new ApplicationModel();
+
+    constructor(private _dataService: DataService, private _router: Router, private _loader: LoaderService, 
+        fb: FormBuilder, private _changeDetector: ChangeDetectorRef) {
+        if (this._dataService.currentApplicationToEdit !== Constant.NULL && this._dataService.currentApplicationToEdit !== Constant.Undefined) {
+    
+          this.updateApplicationForm = fb.group({
+            hideRequired: Constant.FALSE,
+            floatLabel: Constant.FloatLabel_AUTO
+          });
+    
+          this.updateApplicationForm = new FormGroup(
+            {
+                azureApplicationId: new FormControl({ value: this._dataService.currentApplicationToEdit.azureApplicationId, disabled: Constant.TRUE },
+                    [Validators.required, Validators.maxLength(Constant.AzureApplicationIdMaxLength)]),
+                displayName: new FormControl({ value: this._dataService.currentApplicationToEdit.displayName, disabled: Constant.FALSE },
+                    [Validators.required, Validators.maxLength(Constant.ApplicationDisplayNameMaxLength),
+                    Validators.minLength(Constant.ApplicationDisplayNameMinLength)])
+            });
+        }
+        else {
+          _router.navigate([Constant.ApplicationUrl]);
+        }    
+    }
+
+
+    async ngOnInit() {
+        this._loader.show();
+        await this._dataService.FetchAccessToken();   
+    
+        this._username = this._dataService.FetchUserName();
+        if (this._username !== Constant.NULL && this._username !== Constant.String_Undefined) {
+          this.isSaveButtonDisabled = Constant.TRUE;
+          this.mapApplicationModels(this._dataService.currentApplicationToEdit);
+          this._loader.hide();
+        } else {
+          // No user Found - Present Error Page.
+          this._loader.hide();
+          this._router.navigate([Constant.ErrorPageUrl,
+          {
+            message: Constant.PermissionErrorMessageAccess,
+            type: Constant.Error_Type_Permission
+          }]);
+        }
+    }
+
+
+    ngAfterContentChecked(): void {
+        this._changeDetector.detectChanges();
+    }
+    
+    cancelUpdate() {
+        this._router.navigate([Constant.DashboardUrl]);
+    }
+    
+    backToApplications() {
+        this._router.navigate([Constant.ApplicationUrl]);
+    }
+
+
+    isSaveDisabled(_passedFormApplication: ApplicationModel) {
+        if (_passedFormApplication !== Constant.Undefined) {
+          if (this.updatedApplication.displayName !== _passedFormApplication.displayName) {
+            this.isSaveButtonDisabled = Constant.FALSE;
+            this.errorMessageActive = Constant.FALSE;
+            this.successMessageActive = Constant.FALSE;
+          }
+          else {
+            this.isSaveButtonDisabled = Constant.TRUE;
+          }
+        }
+        return this.isSaveButtonDisabled;
+    }
+    
+    saveEditOfApplication(_passedFormApplication: ApplicationModel) {
+    
+        // #region Set the Disabled Column Name before we Fire Update request    
+        _passedFormApplication.azureApplicationId = this._dataService.currentApplicationToEdit.azureApplicationId;
+        // #endregion
+    
+        this._loader.show();
+    
+        this._dataService.updateApplication(_passedFormApplication)
+          .subscribe(
+            {
+              next: responseText => {
+                this.mapApplicationModels(_passedFormApplication);
+                this.isSaveButtonDisabled = Constant.TRUE;
+    
+                this.successMessage = responseText;
+                this.successMessageActive = Constant.TRUE;
+                this.errorMessageActive = Constant.FALSE;
+    
+                this._loader.hide();
+              },
+              error: err => {
+                this.errorMessage = Constant.Error_FailedToUpdateApplication;
+                this.errorMessageActive = Constant.TRUE;
+    
+                this._loader.hide();
+              }
+            });
+    }
+    
+    mapApplicationModels(_passedFormApplication: ApplicationModel) {
+        this.updatedApplication.displayName = _passedFormApplication.displayName;
+    }
+    
+    public hasError = (controlName: string, errorName: string) => {
+        return this.updateApplicationForm.controls[controlName].hasError(errorName);
     }
 }
 
@@ -502,1043 +1444,903 @@ namespace AzureAD_B2CBroker.Controllers
 
 
 
+```````````````````````````````````````` authorization component
 
-using AutoMapper;
-using B2CBroker.Business;
-using Functional;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using System.Threading.Tasks;
+<mat-card>
 
-namespace AzureAD_B2CBroker.Controllers
-{
-    [Route(Misc.Constants.API_Route)]
-    [ApiController]
-    public class AuthorizationController : ControllerBase
-    {
-        private readonly B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.Authorization> _repo;
-        private readonly Orchestrator _orchestrator;
-        private readonly IMapper _mapper;
-        private readonly LinkGenerator _linkGenerator;
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+  
+    <div class="m-2">
+  
+      <div class="row">
+  
+        <div class="col-8 alert alert-info mat-elevation-z8" role="alert">
+          <h4 class="alert-heading">
+            <mat-icon matListIcon>build</mat-icon>
+            Authorization(s)
+          </h4>
+          <hr>
+          <p class="top">
+            Below is the list of all Authorization(s) for selected Authorization.
+          </p>
+        </div>
+  
+        <div class="col-4">
+          <button class="buttoncolor" mat-icon-button mat-elevation-z8 color="warn"
+                  matTooltip="Click here to Add New Authorization"
+                  (click)="addAuthorization()">
+            <mat-icon>apps plus_one</mat-icon>
+          </button>
+        </div>      
+      </div>
+  
+      <div >
+  
+        <div style="text-align:center">      
+          <mat-table [dataSource]="authorizations" matSort class="mat-table mat-elevation-z8">
+  
+            <!--- Note that these columns can be defined in any order.
+            The actual rendered columns are set as a property on the row definition" -->
+            <!-- Position Column -->
 
-        public AuthorizationController(B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.Authorization> _passedRepo,
-            IMapper _passedMapper, LinkGenerator _passedLinkGenerator)
+            <ng-container matColumnDef="id">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Authorization Id </mat-header-cell>
+                <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
+            </ng-container>            
+  
+            <!-- Name Column -->
+            <ng-container matColumnDef="email">
+              <mat-header-cell *matHeaderCellDef mat-sort-header> Email Address </mat-header-cell>
+              <mat-cell *matCellDef="let element"> {{element.email}} </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="applicationId">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Application Id </mat-header-cell>
+                <mat-cell *matCellDef="let element"> {{element.applicationId}} </mat-cell>
+            </ng-container>
+  
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row style="cursor: pointer" *matRowDef="let row; columns: displayedColumns;" 
+                (click)="getAuthorizationRecord(row.email, row.applicationId)">
+            </mat-row>
+          </mat-table>      
+          <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>      
+        </div>     
+      </div>      
+  
+      <div class="row">      
+        <div *ngIf="rowClicked" style="text-align:center">
+          <!-- Div 1-->
+          <div class="card text-info rowbackground p-2 mat-elevation-z8">
+            <!--Div 2-->
+  
+            <mat-list>
+              <h3 matSubheader class="parent">
+                <button class="center" mat-raised-button mat-elevation-z8 color="accent"
+                        matTooltip="Click here to Edit details for {{currentSelectedAuthorization.email}}"
+                        (click)="editAuthorization(currentSelectedAuthorization)">
+                  <mat-icon>edit</mat-icon>
+                  Edit - {{currentSelectedAuthorization.email}}
+                </button>
+              </h3>
+  
+              <h3 matSubheader class="parent">
+                <button class="center" mat-raised-button mat-elevation-z8 color="accent"
+                        matTooltip="Click here to Delete {{currentSelectedAuthorization.email}} from system"
+                        (click)="deleteAuthorization(currentSelectedAuthorization)">
+                  <mat-icon>delete</mat-icon>
+                  Delete - {{currentSelectedAuthorization.email}}
+                </button>
+              </h3>
+  
+              <br />
+  
+              <div class="col-sm">
+                <button class="buttoncolor" mat-icon-button mat-elevation-z8 color="primary"
+                        matTooltip="Click here to Add New Authorization for {{currentSelectedAuthorization.applicationId}}"
+                        (click)="addAuthorization(currentSelectedAuthorization.applicationId)">
+                  <mat-icon>airplanemode_on plus_one</mat-icon>
+                </button>
+              </div>
+  
+              <br />
+  
+              <mat-divider></mat-divider>              
+  
+              <!--
+              <h3 matSubheader>Current Authorization(s) listed for {{currentSelectedAuthorization.id}}</h3>
+
+               <mat-list-item style="cursor: pointer" *ngFor="let authorization of currentSelectedAuthorization.authorizations"
+                             (click)="FetchAuthorization(authorization)">
+                <mat-icon matListIcon>flight</mat-icon>
+                <h4 matLine>Users Email Address: {{authorization.email}}</h4>
+              </mat-list-item> -->
+
+            </mat-list>
+  
+          </div> <!--Div 2 Ended-->
+        </div> <!--Div 1 Ended-->   
+      </div>      
+    </div>
+
+    <mat-card-actions align="center">
+        <button class="button" mat-raised-button mat-elevation-z8 color="accent"
+                matTooltip="Click here to go back to Applications page"
+                type="button" (click)="backToApplications()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Applications
+        </button>
+    </mat-card-actions>
+  </mat-card>
+  
+  
+  // viewAuthorizationForApplicationId
+
+import { Component, OnInit, ViewChild, OnDestroy } from "@angular/core";
+import { DataService } from "../shared/dataService";
+import { Router } from '@angular/router';
+import { Constant } from "../shared/Constant";
+
+import { MatPaginator } from "@angular/material/paginator";
+import { MatSort } from "@angular/material/sort";
+import { MatTableDataSource } from "@angular/material/table";
+import { LoaderService } from "../loader/loader.service";
+import { AuthorizationModel } from "../models/authorization";
+
+@Component({
+  selector: "authorization",
+  templateUrl: "authorization.component.html",
+  styleUrls: ["authorization.component.css"]
+})
+export class Authorization implements OnInit { 
+
+    constructor(private _dataService: DataService, private _loader: LoaderService, private _router: Router) { }
+
+    public displayedColumns: string[] =
+    [
+      Constant.AuthorizationColumn_Id, 
+      Constant.AuthorizationColumn_email, 
+      Constant.AuthorizationColumn_applicationId
+    ];
+    public authorizations: MatTableDataSource<AuthorizationModel>;
+
+    public currentSelectedAuthorization: AuthorizationModel;
+
+    public rowClicked: boolean = Constant.FALSE;
+    errorMessage: string = Constant.String_Undefined;
+    private _username: string = Constant.String_Undefined;
+
+    @ViewChild(MatSort, { static: Constant.TRUE }) sort: MatSort;
+    @ViewChild(MatPaginator, { static: Constant.TRUE }) paginator: MatPaginator;
+
+    async ngOnInit() {
+
+        this._loader.show();   
+        await this._dataService.FetchAccessToken();      
+  
+        this._username = this._dataService.FetchUserName();
+  
+        if (this._username !== Constant.NULL && this._username !== Constant.String_Undefined) 
         {
-            _repo = _passedRepo;
-            _orchestrator = new Orchestrator();
-            _mapper = _passedMapper;
-            _linkGenerator = _passedLinkGenerator;
+            if (this._dataService.viewAuthorizationsForApplicationId !== Constant.NULL && 
+                this._dataService.viewAuthorizationsForApplicationId !== Constant.Undefined)
+            {
+                this._dataService.loadAuthorizations()
+                .subscribe(
+                {
+                    next: responseData => {
+                    this.authorizations = new MatTableDataSource<AuthorizationModel>(responseData);
+  
+                    this.authorizations.sort = this.sort;
+                    this.authorizations.paginator = this.paginator;
+                    this._loader.hide();
+                },
+                error: err => 
+                {
+                    this._loader.hide();
+                    this.errorMessage = Constant.FetchAuthorizationsFailed;
+                    this._router.navigate([Constant.ErrorPageUrl,
+                    {
+                        message: Constant.FetchAuthorizationsFailed,
+                        type: Constant.Error_Type_InternalServiceError
+                    }]); 
+                }});
+            }
+            else
+            {
+                this._router.navigate([Constant.ApplicationUrl]);
+            }
+        } 
+        else
+        {
+          // No user Found - Present Error Page.      
+          this._loader.hide();
+          this._router.navigate([Constant.ErrorPageUrl,
+          {
+            message: Constant.PermissionErrorMessageAccess,
+            type: Constant.Error_Type_Permission
+          }]); 
         }
+    }
 
-        // Sample: https://localhost:44375/api/authorization/exampleemail@domain.com.au?applicationId=23
-        [HttpGet(Misc.Constants.API_Route_IdParam)]
-        public async Task<ActionResult<InputModels.Authorization>> GetAuthorization(string id, int applicationId) =>
-            await TryCatch.SanitiseInput<string, int, Option<Error>>
-                ((_id, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
-                {
-                    if (_id.Length <= Misc.Constants.ONE_THOUSAND 
-                        && _applicationId > Misc.Constants.ZERO
-                        && _id.Contains(Misc.Constants.AT_THE_RATE))                    
-                    {
-                        return new None<Error>();
-                    }
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to client.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                id, applicationId)
-                .ProcessOnNoneAsync<Error, ActionResult>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_AuthorizationNotFound
-                            : Misc.Constants.Message_AuthorizationNotFound;
+    public getAuthorizationRecord(_email: string, _applicationId: number) {
+        this._loader.show(); 
+        this._dataService.loadAuthorization(_email, _applicationId)
+          .subscribe(
+            {
+              next: responseData => {          
+                this.currentSelectedAuthorization = responseData;  
+                console.log(this.currentSelectedAuthorization);  // delete this --------------------------------------------------                
+                this.rowClicked = Constant.TRUE;
+                this._loader.hide();
+              },
+              error: err => {
+                this._loader.hide();
+                this.errorMessage = Constant.FetchAuthorizationFailed;              
+              }
+            });   
+    }
 
-                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.Authorization>>
-                            (
-                                // Business Method to Run, when validation Succeeds.                                
-                                _orchestrator.GetAuthorizationByStringId(applicationId, id, 
-                                    FetchCurrentAuthenticatedUser(), _repo),
-                            (e, l) =>
-                            {   // We have encountered exception in one of the Business Method(s)/Layers, relay 
-                                // sophisticated information back to client.
-                                return new
-                                    B2CBroker.Data.Errors.AuthorizationNotFound(Misc.Constants.Error_AuthorizationNotFound + id);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null
-                                    ? (ActionResult)Ok(_mapper.Map<InputModels.Authorization>(r))
-                                    : (ActionResult)base.NotFound(Misc.Constants.Message_AuthorizationNotFound))
-                        .Reduce(_ => base.NotFound(Misc.Constants.Message_AuthorizationNotFound),
-                            error => error is B2CBroker.Data.Errors.AuthorizationNotFound)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
+    backToApplications() {
+        this._router.navigate([Constant.ApplicationUrl]);
+    }
 
-
-        // Sample: https://localhost:44375/api/authorizations?takeRows=3
-        [HttpGet]
-        public async Task<ActionResult<InputModels.Authorization[]>> GetAuthorizations(int applicationId = Misc.Constants.ZERO, 
-            int skipRows = Misc.Constants.ZERO, int takeRows = Misc.Constants.TWENTY) =>
-            await TryCatch.SanitiseInput<int, int, Option<Error>>
-                ((_skipRows, _takeRows) =>   // Check/Validate supplied Input Data, act accordingly.
-                {
-                    if (_takeRows >= Misc.Constants.THREE && _takeRows <= Misc.Constants.TWO_FIFTY_FIVE
-                        && _skipRows >= Misc.Constants.ZERO)
-                    {
-                        return new None<Error>();
-                    }
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLengthForTakeAndSkip);
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                skipRows, takeRows)
-                .ProcessOnNoneAsync<Error, ActionResult>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_AuthorizationNotFound
-                            : Misc.Constants.Message_AuthorizationNotFound;
-
-                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.Authorization[]>>
-                            (
-                                // Business Method to Run, when validation Succeeds.
-                                _orchestrator.GetAuthorizations(applicationId, FetchCurrentAuthenticatedUser(),
-                                    _repo, Misc.Constants.FALSE, skipRows, takeRows),
-                            (e, l) =>
-                            {   
-                                // We have encountered exception in one of the Business Method(s)/Layers, 
-                                // relay sophisticated information back to client.
-                                return new B2CBroker.Data.Errors.NoDataFound(Misc.Constants.Message_NoDataFound);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null
-                                ? (ActionResult)Ok(_mapper.Map<InputModels.Authorization[]>(r))
-                                : (ActionResult)base.NotFound(Misc.Constants.Message_NoDataFound))
-                        .Reduce(_ => base.NotFound(Misc.Constants.Message_NoDataFound),
-                            error => error is B2CBroker.Data.Errors.AuthorizationNotFound)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
-
-
-        [HttpPost]
-        public async Task<ActionResult<InputModels.Authorization>> Post(InputModels.Authorization authorization) =>
-            await TryCatch.SanitiseInput<InputModels.Authorization, Option<Error>>
-                ((_authorization) =>   // Check/Validate supplied Input Data, act accordingly.
-                {
-                    // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                    return new None<Error>();
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                authorization)
-                .ProcessOnNoneAsync<Error, ActionResult<InputModels.Authorization>>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_AuthorizationDetailsNotValid
-                            : Misc.Constants.Message_AuthorizationDetailsNotValid;
-
-                        return Task.FromResult((ActionResult<InputModels.Authorization>)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                            (
-                                // Business Method to Run, when validation Succeeds.
-                                _orchestrator.SaveAuthorization(authorization.ApplicationId, FetchCurrentAuthenticatedUser(),
-                                    _mapper.Map<B2CBroker.Domain.Authorization>(authorization), _repo),
-                            (e, l) =>
-                            {
-                                // We have encountered exception in one of the Business Method(s)/Layers, 
-                                //relay sophisticated information back to client.
-                                return new
-                                    B2CBroker.Data.Errors.AuthorizationNotAdded(Misc.Constants.Message_AuthorizationNotAdded);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null
-                                    ? r.IsSuccess
-                                        ? (ActionResult)Created(r.OperationResult, authorization)
-                                        : (ActionResult)base.BadRequest(r.OperationResult)
-                                    : (ActionResult)base.BadRequest(Misc.Constants.Message_AuthorizationNotAdded))
-                        .Reduce(_ => base.BadRequest(Misc.Constants.Message_AuthorizationNotAdded),
-                            error => error is B2CBroker.Data.Errors.AuthorizationNotAdded)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
-
-
-        [HttpPut(Misc.Constants.API_Route_IdParam)]
-        public async Task<IActionResult> Put(int id, InputModels.Authorization authorization) =>
-            await TryCatch.SanitiseInput<InputModels.Authorization, int, Option<Error>>
-                    ((_authorization, _id) =>   // Check/Validate supplied Input Data, act accordingly.
-                    {
-                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                        if (_id == _authorization.ApplicationId)
-                            return new None<Error>();
-
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput +
-                            Misc.Constants.SPACE + Misc.Constants.Message_AuthorizationIdMismatch);
-                    },
-                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                    {
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                    },
-                    () =>
-                    {
-                        // Finally Block.
-                    },
-                    authorization, id)
-                    .ProcessOnNoneAsync<Error, IActionResult>
-                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                        {
-                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                                ? e is B2CBroker.Data.Errors.InvalidInput i
-                                    ? i._reason
-                                    : Misc.Constants.Message_AuthorizationDetailsNotValid
-                                : Misc.Constants.Message_AuthorizationDetailsNotValid;
-
-                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
-                        },
-                        async () => // Real Code - Goes in this Async Lambda.           
-                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                                (
-                                    // Business Method to Run, when validation Succeeds.
-                                    _orchestrator.UpdateAuthorization(id, FetchCurrentAuthenticatedUser(),
-                                        _mapper.Map<B2CBroker.Domain.Authorization>(authorization), _repo),
-                                (e, l) =>
-                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
-                                    // relay sophisticated information back to client.
-                                    return new
-                                        B2CBroker.Data.Errors.AuthorizationNotUpdated(Misc.Constants.Message_AuthorizationNotUpdated);
-                                },
-                                () =>
-                                {
-                                    // Finally Block.
-                                })
-                                .ConfigureAwait(Misc.Constants.FALSE))
-                            .Map(r => r != null
-                                        ? r.IsSuccess
-                                            ? (IActionResult)Ok(r.OperationResult)
-                                            : (IActionResult)base.BadRequest(r.OperationResult)
-                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_AuthorizationNotUpdated))
-                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_AuthorizationNotUpdated),
-                                error => error is B2CBroker.Data.Errors.AuthorizationNotUpdated)
-                            .Reduce(_ => (IActionResult)InternalServerError()));
-
-
-        [HttpDelete(Misc.Constants.API_Route_IdParam)]
-        public async Task<IActionResult> DeleteAuthorization(string id, int applicationId) =>
-            await TryCatch.SanitiseInput<string, int, Option<Error>>
-                    ((_emailId, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
-                    {
-                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                        if (_emailId.Length <= Misc.Constants.ONE_THOUSAND
-                        && _applicationId > Misc.Constants.ZERO
-                        && _emailId.Contains(Misc.Constants.AT_THE_RATE))
-                        {
-                            return new None<Error>();
-                        }
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
-                    },
-                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                    {
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                    },
-                    () =>
-                    {
-                        // Finally Block.
-                    },
-                    id, applicationId)
-                    .ProcessOnNoneAsync<Error, IActionResult>
-                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                        {
-                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                                ? e is B2CBroker.Data.Errors.InvalidInput i
-                                    ? i._reason
-                                    : Misc.Constants.Message_AuthorizationDetailsNotValid
-                                : Misc.Constants.Message_AuthorizationDetailsNotValid;
-
-                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
-                        },
-                        async () => // Real Code - Goes in this Async Lambda.           
-                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                                (
-                                    // Business Method to Run, when validation Succeeds. 
-                                    _orchestrator.DeleteAuthorization(applicationId, FetchCurrentAuthenticatedUser(),
-                                        id, _repo),
-                                (e, l) =>
-                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
-                                    // relay sophisticated information back to client.
-                                    return new
-                                        B2CBroker.Data.Errors.AuthorizationNotDeleted(Misc.Constants.Message_AuthorizationNotDeleted);
-                                },
-                                () =>
-                                {
-                                    // Finally Block.
-                                })
-                                .ConfigureAwait(Misc.Constants.FALSE))
-                            .Map(r => r != null
-                                        ? r.IsSuccess
-                                            ? (IActionResult)Ok(r.OperationResult)
-                                            : (IActionResult)base.BadRequest(r.OperationResult)
-                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_AuthorizationNotDeleted))
-                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_AuthorizationNotDeleted),
-                                error => error is B2CBroker.Data.Errors.AuthorizationNotDeleted)
-                            .Reduce(_ => (IActionResult)InternalServerError()));
-
-
-
-        #region Private(s)
-
-        private string FetchCurrentAuthenticatedUser() =>
-            string.Empty;
-
-        private IActionResult InternalServerError() =>
-            StatusCode(StatusCodes.Status500InternalServerError);
-
-        #endregion
+    public editAuthorization(_authorizationToEdit: AuthorizationModel) {
+        this._dataService.editAuthorization(_authorizationToEdit);
+        this._router.navigate([Constant.AuthorizationEditUrl]);
+    }
+    
+      public deleteAuthorization(_authorizationToDelete: AuthorizationModel) {
+        this._dataService.deleteAuthorization(_authorizationToDelete);
+        this._router.navigate([Constant.AuthorizationDeleteUrl]); 
+    }
+    
+      public addAuthorization() {
+        this._router.navigate([Constant.AuthorizationAddUrl]);
+    }
+    
+      public viewCurrentAuthorization(_id: number, _applicationId: number) {
+        this._dataService.viewCurrentAuthorizationForApplicationId = _applicationId;
+        this._dataService.viewCurrentAuthorizationForAuthorizationId = _id;
+        this._router.navigate([Constant.CurrentAuthorizationUrl]);
     }
 }
 
 
 
+`````````````````````````  authorization add ``````````````````````
 
 
 
-using B2CBroker.Business;
-using B2CBroker.Domain;
-using AutoMapper;
-using Functional;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using System.Threading.Tasks;
+<mat-card>
+    <div *ngIf="errorMessageActive" class="alert alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="successMessageActive" class="alert alert-success">{{ successMessage }}</div>
+  
+    <form novalidate [formGroup]="addAuthorizationForm"
+          autocomplete="off" (ngSubmit)="saveNewAuthorization(addAuthorizationForm.value)" fxLayout="column wrap"
+          fxLayoutAlign="center center" fxLayoutGap="10px">
+  
+      <mat-card-title>Add a new Authorization</mat-card-title>
+  
+      <mat-form-field>
+        <input matInput #inputapplicationid placeholder="Application Id"
+               id="applicationid" formControlName="applicationid" />
+      </mat-form-field>
 
-namespace AzureAD_B2CBroker.Controllers
-{
-    [Route(Misc.Constants.API_Route)]
-    [ApiController]
-    public class CurrentAuthorizationController : ControllerBase
-    {
-        private readonly B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.CurrentAuthorization> _repo;
-        private readonly Orchestrator _orchestrator;
-        private readonly IMapper _mapper;
-        private readonly LinkGenerator _linkGenerator;
+      <mat-form-field>
+        <input matInput #inputemail placeholder="Email"
+               maxlength="500" id="email" formControlName="email" />
+  
+        <mat-hint align="center">{{inputemail.value?.length || 0}}/500</mat-hint>
+  
+        <mat-error *ngIf="hasError('email', 'required')">Email Address is required</mat-error>
+        <mat-error *ngIf="hasError('email', 'maxlength')">Only 500 characters are allowed</mat-error>
+        <mat-error *ngIf="hasError('email', 'minlength')">At least 5 characters are required</mat-error>
+      </mat-form-field>     
+  
+  
+      <mat-card-actions align="center">
+        <button mat-raised-button color="primary"
+                matTooltip="Click here to Save details for {{inputemail.value}}"
+                type="submit" [disabled]="!addAuthorizationForm.valid || isSaveDisabled()">
+          <mat-icon>save</mat-icon>
+          Save Details
+        </button>
+  
+        <button type="button" mat-raised-button color="warn" (click)="cancelSave()"
+                matTooltip="Click here to Cancel" [disabled]="isSaveDisabled()">
+          <mat-icon>cancel_presentation</mat-icon>
+          Cancel
+        </button>
+      </mat-card-actions>
+  
+      <mat-card-actions align="center">
+        <button type="button" mat-raised-button color="accent" (click)="backToAuthorizations()"
+                matTooltip="Click here to go back to Authorizations page">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Authorization(s)
+        </button>
+      </mat-card-actions>
+    </form>
+</mat-card>
+  
+  import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { DataService } from "../shared/dataService";
+import { Router } from '@angular/router';
+import { Constant } from "../shared/Constant";
+import { FormControl, FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
+import { LoaderService } from "../loader/loader.service";
+import { AuthorizationModel } from "../models/authorization";
 
-        public CurrentAuthorizationController(B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.CurrentAuthorization> _passedRepo,
-            IMapper _passedMapper, LinkGenerator _passedLinkGenerator)
-        {
-            _repo = _passedRepo;
-            _orchestrator = new Orchestrator();
-            _mapper = _passedMapper;
-            _linkGenerator = _passedLinkGenerator;
+@Component({
+  selector: "authorizationadd",
+  templateUrl: "authorizationadd.component.html",
+  styleUrls: ["authorizationadd.component.css"]
+})
+export class AuthorizationAdd implements OnInit { 
+
+
+    addAuthorizationForm: FormGroup;
+    errorMessageActive: boolean = Constant.FALSE;
+    successMessageActive: boolean = Constant.FALSE;
+
+    errorMessage: string = Constant.String_Undefined;
+    successMessage: string = Constant.String_Undefined;
+    isSaveButtonDisabled: boolean;
+
+    private _username: string = Constant.String_Undefined;
+
+    constructor(private _dataService: DataService, private _router: Router, 
+        private _loader: LoaderService, fb: FormBuilder,
+        private _changeDetector: ChangeDetectorRef) {
+    
+        this.addAuthorizationForm = fb.group({
+          hideRequired: Constant.FALSE,
+          floatLabel: Constant.FloatLabel_AUTO
+        });
+    
+        if (this._dataService.viewAuthorizationsForApplicationId !== Constant.NULL && 
+            this._dataService.viewAuthorizationsForApplicationId !== Constant.Undefined){
+            this.addAuthorizationForm = new FormGroup(
+            {
+                applicationid: new FormControl({ value: this._dataService.viewAuthorizationsForApplicationId, disabled: Constant.TRUE },
+                    [Validators.required, Validators.maxLength(Constant.AzureApplicationIdMaxLength),
+                        Validators.minLength(Constant.AzureApplicationIdMaxLength)]),
+                email: new FormControl({ value: Constant.String_Undefined, disabled: Constant.FALSE },
+                    [Validators.required, Validators.maxLength(Constant.AuthorizationEmailMaxLength), 
+                        Validators.minLength(Constant.AuthorizationEmailMinLength)])
+          });
+        } else{
+            this._router.navigate([Constant.ApplicationUrl]);
         }
+    }
 
+    async ngOnInit() {
+        this._loader.show();   
+        await this._dataService.FetchAccessToken();   
+    
+        this._username = this._dataService.FetchUserName();
+        if (this._username !== Constant.NULL && this._username !== Constant.String_Undefined) {
+          this.isSaveButtonDisabled = Constant.FALSE;
+          this._loader.hide();
+        } else {
+          // No user Found - Present Error Page.
+          this._loader.hide();
+          this._router.navigate([Constant.ErrorPageUrl,
+          {
+            message: Constant.PermissionErrorMessageAccess,
+            type: Constant.Error_Type_Permission
+          }]); 
+        }
+    }
 
-        // Sample: https://localhost:44375/api/CurrentAuthorization/5655?applicationId=2354
-        [HttpGet(Misc.Constants.API_Route_IdParam)]
-        public async Task<ActionResult<InputModels.CurrentAuthorization>> GetCurrentAuthorization(int id, int applicationId) =>
-            await TryCatch.SanitiseInput<int, int, Option<Error>>
-                ((_authorizationId, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
-                {
-                    if (_authorizationId > Misc.Constants.ZERO
-                        && _applicationId > Misc.Constants.ZERO)
-                    {
-                        return new None<Error>();
-                    }
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to client.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                id, applicationId)
-                .ProcessOnNoneAsync<Error, ActionResult>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_CurrentAuthorizationNotFound
-                            : Misc.Constants.Message_CurrentAuthorizationNotFound;
+    ngAfterContentChecked(): void {
+        this._changeDetector.detectChanges();
+    }
+    
+    cancelSave() {
+        this._router.navigate([Constant.DashboardUrl]);
+    }
+    
+    backToAuthorizations() {
+        this._router.navigate([Constant.AuthorizationUrl]);
+    }
+    
+    isSaveDisabled() {
+        return this.isSaveButtonDisabled;
+    }
 
-                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.CurrentAuthorization>>
-                            (
-                                // Business Method to Run, when validation Succeeds.                                
-                                _orchestrator.GetCurrentAuthorizationByStringId(applicationId, id.ToString(),
-                                    FetchCurrentAuthenticatedUser(), _repo),
-                            (e, l) =>
-                            {   // We have encountered exception in one of the Business Method(s)/Layers, relay 
-                                // sophisticated information back to client.
-                                return new
-                                    B2CBroker.Data.Errors.CurrentAuthorizationNotFound
-                                    (Misc.Constants.Error_CurrentAuthorizationNotFound + id);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null
-                                    ? (ActionResult)Ok(_mapper.Map<InputModels.CurrentAuthorization>(r))
-                                    : (ActionResult)base.NotFound(Misc.Constants.Message_CurrentAuthorizationNotFound))
-                        .Reduce(_ => base.NotFound(Misc.Constants.Message_CurrentAuthorizationNotFound),
-                            error => error is B2CBroker.Data.Errors.CurrentAuthorizationNotFound)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
+    public saveNewAuthorization = (_passedAuthorization) => {
+        if (this.addAuthorizationForm.valid) {
+          this.saveNewAuthorizationViaApi(_passedAuthorization);
+        }
+    }
+    
+    private saveNewAuthorizationViaApi(_authorization: AuthorizationModel) {
+        this._loader.show(); 
 
-
-        // Sample: https://localhost:44375/api/CurrentAuthorizations?takeRows=3
-        [HttpGet]
-        public async Task<ActionResult<InputModels.CurrentAuthorization[]>> GetCurrentAuthorizations(
-            int authorizationId = Misc.Constants.ZERO, int applicationId = Misc.Constants.ZERO,
-            int skipRows = Misc.Constants.ZERO, int takeRows = Misc.Constants.TWENTY) =>
-            await TryCatch.SanitiseInput<int, int, Option<Error>>
-                ((_skipRows, _takeRows) =>   // Check/Validate supplied Input Data, act accordingly.
-                {
-                    if (_takeRows >= Misc.Constants.THREE && _takeRows <= Misc.Constants.TWO_FIFTY_FIVE
-                        && _skipRows >= Misc.Constants.ZERO)
-                    {
-                        return new None<Error>();
-                    }
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLengthForTakeAndSkip);
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                skipRows, takeRows)
-                .ProcessOnNoneAsync<Error, ActionResult>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_CurrentAuthorizationNotFound
-                            : Misc.Constants.Message_CurrentAuthorizationNotFound;
-
-                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.CurrentAuthorization[]>>
-                            (
-                                // Business Method to Run, when validation Succeeds.
-                                _orchestrator.GetCurrentAuthorizations(applicationId, FetchCurrentAuthenticatedUser(),
-                                    authorizationId, _repo, Misc.Constants.FALSE, skipRows, takeRows),
-                            (e, l) =>
-                            {
-                                // We have encountered exception in one of the Business Method(s)/Layers, 
-                                // relay sophisticated information back to client.
-                                return new B2CBroker.Data.Errors.NoDataFound(Misc.Constants.Message_NoDataFound);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null
-                                ? (ActionResult)Ok(_mapper.Map<InputModels.CurrentAuthorization[]>(r))
-                                : (ActionResult)base.NotFound(Misc.Constants.Message_NoDataFound))
-                        .Reduce(_ => base.NotFound(Misc.Constants.Message_NoDataFound),
-                            error => error is B2CBroker.Data.Errors.CurrentAuthorizationNotFound)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
-
-
-        [HttpPost]
-        public async Task<ActionResult<InputModels.CurrentAuthorization>> Post(InputModels.CurrentAuthorization currentAuthorization) =>
-            await TryCatch.SanitiseInput<InputModels.CurrentAuthorization, Option<Error>>
-                ((_currentAuthorization) =>   // Check/Validate supplied Input Data, act accordingly.
-                {
-                    // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                    return new None<Error>();
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                currentAuthorization)
-                .ProcessOnNoneAsync<Error, ActionResult<InputModels.CurrentAuthorization>>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid
-                            : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid;
-
-                        return Task.FromResult((ActionResult<InputModels.CurrentAuthorization>)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                            (
-                                // Business Method to Run, when validation Succeeds.
-                                _orchestrator.SaveCurrentAuthorization(currentAuthorization.ApplicationId, 
-                                    FetchCurrentAuthenticatedUser(), 
-                                    _mapper.Map<B2CBroker.Domain.CurrentAuthorization>(currentAuthorization), 
-                                    _repo),
-                            (e, l) =>
-                            {
-                                // We have encountered exception in one of the Business Method(s)/Layers, 
-                                //relay sophisticated information back to client.
-                                return new
-                                    B2CBroker.Data.Errors.CurrentAuthorizationNotAdded
-                                    (Misc.Constants.Message_CurrentAuthorizationNotAdded);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null
-                                    ? r.IsSuccess
-                                        ? (ActionResult)Created(r.OperationResult, currentAuthorization)
-                                        : (ActionResult)base.BadRequest(r.OperationResult)
-                                    : (ActionResult)base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotAdded))
-                        .Reduce(_ => base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotAdded),
-                            error => error is B2CBroker.Data.Errors.CurrentAuthorizationNotAdded)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
-
-
-
-        [HttpPut(Misc.Constants.API_Route_IdParam)]
-        public async Task<IActionResult> Put(int id, InputModels.CurrentAuthorization currentAuthorization) =>
-            await TryCatch.SanitiseInput<InputModels.CurrentAuthorization, int, Option<Error>>
-                    ((_currentAuthorization, _id) =>   // Check/Validate supplied Input Data, act accordingly.
-                    {
-                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                        if (_id == _currentAuthorization.ApplicationId)
-                            return new None<Error>();
-
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput +
-                            Misc.Constants.SPACE + Misc.Constants.Message_CurrentAuthorizationIdMismatch);
-                    },
-                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                    {
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                    },
-                    () =>
-                    {
-                        // Finally Block.
-                    },
-                    currentAuthorization, id)
-                    .ProcessOnNoneAsync<Error, IActionResult>
-                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                        {
-                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                                ? e is B2CBroker.Data.Errors.InvalidInput i
-                                    ? i._reason
-                                    : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid
-                                : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid;
-
-                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
-                        },
-                        async () => // Real Code - Goes in this Async Lambda.           
-                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                                (
-                                    // Business Method to Run, when validation Succeeds.
-                                    _orchestrator.UpdateCurrentAuthorization(currentAuthorization.ApplicationId,
-                                        FetchCurrentAuthenticatedUser(),
-                                        _mapper.Map<B2CBroker.Domain.CurrentAuthorization>(currentAuthorization), 
-                                        _repo),
-                                (e, l) =>
-                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
-                                    // relay sophisticated information back to client.
-                                    return new
-                                        B2CBroker.Data.Errors.CurrentAuthorizationNotUpdated
-                                        (Misc.Constants.Message_CurrentAuthorizationNotUpdated);
-                                },
-                                () =>
-                                {
-                                    // Finally Block.
-                                })
-                                .ConfigureAwait(Misc.Constants.FALSE))
-                            .Map(r => r != null
-                                        ? r.IsSuccess
-                                            ? (IActionResult)Ok(r.OperationResult)
-                                            : (IActionResult)base.BadRequest(r.OperationResult)
-                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotUpdated))
-                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotUpdated),
-                                error => error is B2CBroker.Data.Errors.CurrentAuthorizationNotUpdated)
-                            .Reduce(_ => (IActionResult)InternalServerError()));
-
-
-        [HttpDelete(Misc.Constants.API_Route_IdParam)]
-        public async Task<IActionResult> DeleteCurrentAuthorization(int id, int applicationId) =>
-            await TryCatch.SanitiseInput<int, int, Option<Error>>
-                    ((_authorizationId, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
-                    {
-                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                        if (_authorizationId > Misc.Constants.ZERO && _applicationId > Misc.Constants.ZERO)
-                        {
-                            return new None<Error>();
-                        }
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
-                    },
-                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                    {
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                    },
-                    () =>
-                    {
-                        // Finally Block.
-                    },
-                    id, applicationId)
-                    .ProcessOnNoneAsync<Error, IActionResult>
-                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                        {
-                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                                ? e is B2CBroker.Data.Errors.InvalidInput i
-                                    ? i._reason
-                                    : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid
-                                : Misc.Constants.Message_CurrentAuthorizationDetailsNotValid;
-
-                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
-                        },
-                        async () => // Real Code - Goes in this Async Lambda.           
-                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                                (
-                                    // Business Method to Run, when validation Succeeds. 
-                                    _orchestrator.DeleteCurrentAuthorization(applicationId, 
-                                        FetchCurrentAuthenticatedUser(),
-                                        id.ToString(), // This is the Current Authorization's Authorization Id.
-                                        _repo),
-                                (e, l) =>
-                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
-                                    // relay sophisticated information back to client.
-                                    return new
-                                        B2CBroker.Data.Errors.CurrentAuthorizationNotDeleted
-                                        (Misc.Constants.Message_CurrentAuthorizationNotDeleted);
-                                },
-                                () =>
-                                {
-                                    // Finally Block.
-                                })
-                                .ConfigureAwait(Misc.Constants.FALSE))
-                            .Map(r => r != null
-                                        ? r.IsSuccess
-                                            ? (IActionResult)Ok(r.OperationResult)
-                                            : (IActionResult)base.BadRequest(r.OperationResult)
-                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotDeleted))
-                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_CurrentAuthorizationNotDeleted),
-                                error => error is B2CBroker.Data.Errors.CurrentAuthorizationNotDeleted)
-                            .Reduce(_ => (IActionResult)InternalServerError()));
-
-
-        #region Private(s)
-
-        private string FetchCurrentAuthenticatedUser() =>
-            string.Empty;
-
-        private IActionResult InternalServerError() =>
-            StatusCode(StatusCodes.Status500InternalServerError);
-
-        #endregion
+        _authorization.applicationId = this._dataService.viewAuthorizationsForApplicationId;
+        
+        this._dataService.addAuthorization(_authorization)
+          .subscribe(
+            {
+              next: response => {
+                this.isSaveButtonDisabled = Constant.TRUE;
+                if (response !== Constant.Undefined) {
+                  this.successMessage = Constant.Save_SuccessfulForAuthorization;
+                  this.successMessageActive = Constant.TRUE;
+                  this.errorMessageActive = Constant.FALSE;
+    
+                  this._loader.hide(); 
+                }
+                else {
+                  this.errorMessage = Constant.Error_FailedToSaveAuthorization;
+                  this.errorMessageActive = Constant.TRUE;
+                  this.successMessageActive = Constant.FALSE;
+    
+                  this._loader.hide(); 
+                }    
+              },
+              error: err => {
+                this.errorMessage = Constant.Error_FailedToSaveAuthorization;
+                this.errorMessageActive = Constant.TRUE;
+                this.successMessageActive = Constant.FALSE;
+    
+                this._loader.hide();
+            }
+        });
+      }
+    
+    public hasError = (controlName: string, errorName: string) => {
+        return this.addAuthorizationForm.controls[controlName].hasError(errorName);
     }
 }
 
 
 
+```````````````````````````````````` authorization delete `````````````````````````````
 
 
-using B2CBroker.Business;
-using B2CBroker.Domain;
-using AutoMapper;
-using Functional;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using System.Threading.Tasks;
+<mat-card>
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  
+    <form novalidate [formGroup]="deleteAuthorizationForm"
+          autocomplete="off" (ngSubmit)="deleteAuthorization()" fxLayout="column wrap"
+          fxLayoutAlign="center center" fxLayoutGap="10px">
+  
+      <mat-card-title>Delete Authorization {{inputemail.value}}</mat-card-title>
+  
+      <mat-card-content>
+        <mat-form-field>
+          <input matInput #inputid placeholder="Authorization Id"
+                 id="id" formControlName="id" />
+        </mat-form-field>
+  
+        <mat-form-field>
+          <input matInput #inputapplicationid placeholder="Application Id"
+                 id="applicationid" formControlName="applicationid" />
+        </mat-form-field>
 
-namespace AzureAD_B2CBroker.Controllers
-{
-    [Route(Misc.Constants.API_Route)]
-    [ApiController]
-    public class HistoryAuthorizationController : ControllerBase
-    {
-        private readonly B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.HistoryAuthorization> _repo;
-        private readonly Orchestrator _orchestrator;
-        private readonly IMapper _mapper;
-        private readonly LinkGenerator _linkGenerator;
+        <mat-form-field>
+            <input matInput #inputemail placeholder="Email"
+                   id="email" formControlName="email" />
+          </mat-form-field>
+      </mat-card-content>
+  
+      <mat-card-actions align="center">
+        <button mat-raised-button color="primary"
+                matTooltip="Click here to delete details for {{inputemail.value}} for Application Id of {{inputapplicationid.value}}"
+                type="submit" [disabled]="isDeleteDisabled()">
+          <mat-icon>delete</mat-icon>
+          Delete {{inputemail.value}} for Application Id of {{inputapplicationid.value}}
+        </button>
+  
+        <button type="button" mat-raised-button color="warn" (click)="cancelDelete()"
+                matTooltip="Click here to cancel and return to settings" [disabled]="isDeleteDisabled()">
+          <mat-icon>cancel_presentation</mat-icon>
+          Cancel
+        </button>
+      </mat-card-actions>
+  
+  
+      <mat-card-actions align="center">
+        <button type="button" mat-raised-button color="accent" (click)="backToAuthorizations()"
+                matTooltip="Click here to go back to Authorizations page">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Authorizations
+        </button>
+      </mat-card-actions>
+    </form>
+</mat-card>
+  
+  import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef, Inject } from "@angular/core";
+import { DataService } from "../shared/dataService";
+import { Router } from '@angular/router';
+import { Constant } from "../shared/Constant";
+import { FormControl, FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
+import { LoaderService } from "../loader/loader.service";
+import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from "@angular/material/bottom-sheet";
+import { AuthorizationModel } from "../models/authorization";
 
-        public HistoryAuthorizationController(B2CBroker.Data.IB2CBrokerRepository<B2CBroker.Domain.HistoryAuthorization> _passedRepo,
-            IMapper _passedMapper, LinkGenerator _passedLinkGenerator)
-        {
-            _repo = _passedRepo;
-            _orchestrator = new Orchestrator();
-            _mapper = _passedMapper;
-            _linkGenerator = _passedLinkGenerator;
+@Component({
+  selector: "authorizationdelete",
+  templateUrl: "authorizationdelete.component.html",
+  styleUrls: ["authorizationdelete.component.css"]
+})
+export class AuthorizationDelete implements OnInit { 
+
+    deleteAuthorizationForm: FormGroup;
+    errorMessage: string = Constant.String_Undefined;
+    successMessage: string = Constant.String_Undefined;
+    private authorization: AuthorizationModel;
+    isDeleteButtonDisabled: boolean;
+    private _username: string = Constant.String_Undefined;
+
+    constructor(private _dataService: DataService, private _router: Router, 
+        private _loader: LoaderService, fb: FormBuilder, private _bottomSheet: MatBottomSheet) {
+        if (this._dataService.currentAuthorizationToDelete !== Constant.NULL && this._dataService.currentAuthorizationToDelete !== Constant.Undefined) {
+          this.deleteAuthorizationForm = fb.group({
+            hideRequired: Constant.FALSE,
+            floatLabel: Constant.FloatLabel_AUTO
+          });
+    
+          this.deleteAuthorizationForm = new FormGroup(
+            {
+                id: new FormControl({ value: this._dataService.currentAuthorizationToDelete.id, disabled: Constant.TRUE }),
+                applicationid: new FormControl({ value: this._dataService.currentAuthorizationToDelete.applicationId, disabled: Constant.TRUE }),
+                email: new FormControl({ value: this._dataService.currentAuthorizationToDelete.email, disabled: Constant.TRUE })
+            });
         }
+        else {
+          _router.navigate([Constant.AuthorizationUrl]);
+        }  
+    }
 
+    async ngOnInit() {
+        this._loader.show();  
+        await this._dataService.FetchAccessToken();    
+    
+        this._username = this._dataService.FetchUserName();
+        if (this._username !== Constant.NULL && this._username !== Constant.String_Undefined) {
+          this.authorization = this._dataService.currentAuthorizationToDelete;
+          this._dataService.deleteAuthorizationBottomSheetConfirmed(Constant.FALSE);
+          this.isDeleteButtonDisabled = Constant.FALSE;
+          this._loader.hide();
+        } else {
+          // No user Found - Present Error Page.
+          this._loader.hide();
+          this._router.navigate([Constant.ErrorPageUrl,
+          {
+            message: Constant.PermissionErrorMessageAccess,
+            type: Constant.Error_Type_Permission
+          }]);
+        }
+    }
 
-        // Sample: https://localhost:44375/api/HistoryAuthorization/5655?applicationId=2354
-        [HttpGet(Misc.Constants.API_Route_IdParam)]
-        public async Task<ActionResult<InputModels.HistoryAuthorization>> GetHistoryAuthorization(int id, int applicationId) =>
-            await TryCatch.SanitiseInput<int, int, Option<Error>>
-                ((_authorizationId, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
-                {
-                    if (_authorizationId > Misc.Constants.ZERO
-                        && _applicationId > Misc.Constants.ZERO)
-                    {
-                        return new None<Error>();
-                    }
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to client.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                id, applicationId)
-                .ProcessOnNoneAsync<Error, ActionResult>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_HistoryAuthorizationNotFound
-                            : Misc.Constants.Message_HistoryAuthorizationNotFound;
+    cancelDelete() {
+        this._router.navigate([Constant.DashboardUrl]);
+    }
+    
+    backToAuthorizations() {
+        this._router.navigate([Constant.AuthorizationUrl]);
+    }
+    
+    isDeleteDisabled() {
+        return this.isDeleteButtonDisabled;
+    }
 
-                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.HistoryAuthorization>>
-                            (
-                                // Business Method to Run, when validation Succeeds.                                
-                                _orchestrator.GetHistoryAuthorizationByStringId(applicationId, 
-                                    id.ToString(),
-                                    FetchCurrentAuthenticatedUser(), 
-                                    _repo),
-                            (e, l) =>
-                            {   // We have encountered exception in one of the Business Method(s)/Layers, relay 
-                                // sophisticated information back to client.
-                                return new
-                                    B2CBroker.Data.Errors.HistoryAuthorizationNotFound
-                                    (Misc.Constants.Error_HistoryAuthorizationNotFound + id);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null
-                                    ? (ActionResult)Ok(_mapper.Map<InputModels.HistoryAuthorization>(r))
-                                    : (ActionResult)base.NotFound(Misc.Constants.Message_HistoryAuthorizationNotFound))
-                        .Reduce(_ => base.NotFound(Misc.Constants.Message_HistoryAuthorizationNotFound),
-                            error => error is B2CBroker.Data.Errors.HistoryAuthorizationNotFound)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
-
-
-        // Sample: https://localhost:44375/api/HistoryAuthorization?takeRows=3
-        [HttpGet]
-        public async Task<ActionResult<InputModels.HistoryAuthorization[]>> GetHistoryAuthorizations(
-            int authorizationId = Misc.Constants.ZERO, int applicationId = Misc.Constants.ZERO,
-            int skipRows = Misc.Constants.ZERO, int takeRows = Misc.Constants.TWENTY) =>
-            await TryCatch.SanitiseInput<int, int, Option<Error>>
-                ((_skipRows, _takeRows) =>   // Check/Validate supplied Input Data, act accordingly.
-                {
-                    if (_takeRows >= Misc.Constants.THREE && _takeRows <= Misc.Constants.TWO_FIFTY_FIVE
-                        && _skipRows >= Misc.Constants.ZERO)
-                    {
-                        return new None<Error>();
-                    }
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLengthForTakeAndSkip);
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                skipRows, takeRows)
-                .ProcessOnNoneAsync<Error, ActionResult>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_HistoryAuthorizationNotFound
-                            : Misc.Constants.Message_HistoryAuthorizationNotFound;
-
-                        return Task.FromResult((ActionResult)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Domain.HistoryAuthorization[]>>
-                            (
-                                // Business Method to Run, when validation Succeeds.
-                                _orchestrator.GetHistoryAuthorizations(applicationId, FetchCurrentAuthenticatedUser(),
-                                    authorizationId, _repo, Misc.Constants.FALSE, skipRows, takeRows),
-                            (e, l) =>
-                            {
-                                // We have encountered exception in one of the Business Method(s)/Layers, 
-                                // relay sophisticated information back to client.
-                                return new B2CBroker.Data.Errors.NoDataFound(Misc.Constants.Message_NoDataFound);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null
-                                ? (ActionResult)Ok(_mapper.Map<InputModels.HistoryAuthorization[]>(r))
-                                : (ActionResult)base.NotFound(Misc.Constants.Message_NoDataFound))
-                        .Reduce(_ => base.NotFound(Misc.Constants.Message_NoDataFound),
-                            error => error is B2CBroker.Data.Errors.HistoryAuthorizationNotFound)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
-
-
-        [HttpPost]
-        public async Task<ActionResult<InputModels.HistoryAuthorization>> Post(InputModels.HistoryAuthorization historyAuthorization) =>
-            await TryCatch.SanitiseInput<InputModels.HistoryAuthorization, Option<Error>>
-                ((_historyauthorization) =>   // Check/Validate supplied Input Data, act accordingly.
-                {
-                    // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                    return new None<Error>();
-                },
-                (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                {
-                    return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                },
-                () =>
-                {
-                    // Finally Block.
-                },
-                historyAuthorization)
-                .ProcessOnNoneAsync<Error, ActionResult<InputModels.HistoryAuthorization>>
-                    ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                    {
-                        string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                            ? e is B2CBroker.Data.Errors.InvalidInput i
-                                ? i._reason
-                                : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid
-                            : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid;
-
-                        return Task.FromResult((ActionResult<InputModels.HistoryAuthorization>)base.BadRequest(_errorMessage));
-                    },
-                    async () => // Real Code - Goes in this Async Lambda.           
-                        (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                            (
-                                // Business Method to Run, when validation Succeeds.
-                                _orchestrator.SaveHistoryAuthorization(historyAuthorization.ApplicationId,
-                                    FetchCurrentAuthenticatedUser(),
-                                    _mapper.Map<B2CBroker.Domain.HistoryAuthorization>(historyAuthorization),
-                                    _repo),
-                            (e, l) =>
-                            {
-                                // We have encountered exception in one of the Business Method(s)/Layers, 
-                                //relay sophisticated information back to client.
-                                return new
-                                    B2CBroker.Data.Errors.HistoryAuthorizationNotAdded
-                                    (Misc.Constants.Message_HistoryAuthorizationNotAdded);
-                            },
-                            () =>
-                            {
-                                // Finally Block.
-                            })
-                            .ConfigureAwait(Misc.Constants.FALSE))
-                        .Map(r => r != null
-                                    ? r.IsSuccess
-                                        ? (ActionResult)Created(r.OperationResult, historyAuthorization)
-                                        : (ActionResult)base.BadRequest(r.OperationResult)
-                                    : (ActionResult)base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotAdded))
-                        .Reduce(_ => base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotAdded),
-                            error => error is B2CBroker.Data.Errors.HistoryAuthorizationNotAdded)
-                        .Reduce(_ => (ActionResult)InternalServerError()));
-
-
-        [HttpPut(Misc.Constants.API_Route_IdParam)]
-        public async Task<IActionResult> Put(int id, InputModels.HistoryAuthorization historyAuthorization) =>
-            await TryCatch.SanitiseInput<InputModels.HistoryAuthorization, int, Option<Error>>
-                    ((_historyAuthorization, _id) =>   // Check/Validate supplied Input Data, act accordingly.
-                    {
-                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                        if (_id == _historyAuthorization.ApplicationId)
-                            return new None<Error>();
-
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput +
-                            Misc.Constants.SPACE + Misc.Constants.Message_HistoryAuthorizationIdMismatch);
-                    },
-                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                    {
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                    },
-                    () =>
-                    {
-                        // Finally Block.
-                    },
-                    historyAuthorization, id)
-                    .ProcessOnNoneAsync<Error, IActionResult>
-                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                        {
-                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                                ? e is B2CBroker.Data.Errors.InvalidInput i
-                                    ? i._reason
-                                    : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid
-                                : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid;
-
-                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
+    deleteAuthorization() {
+        const _bottomSheetRef = this._bottomSheet.open(AuthorizationDeleteBottomSheet, {
+          data: 
+          { 
+              email: [this.authorization.email], 
+              applicationid: [this.authorization.applicationId] 
+            }
+        });
+    
+        _bottomSheetRef
+          .afterDismissed()
+          .subscribe(
+            {
+              next: (responseData) => {
+                if (this._dataService.deleteAuthorizationBottomSheetClicked) {
+    
+                  this._loader.show();
+    
+                  this._dataService.deleteChoosenAuthorization(this.authorization )
+                    .subscribe(
+                      {
+                        next: responseData => {
+                          this.isDeleteButtonDisabled = Constant.TRUE;
+                          this.successMessage = responseData;
+    
+                          this._loader.hide();
                         },
-                        async () => // Real Code - Goes in this Async Lambda.           
-                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                                (
-                                    // Business Method to Run, when validation Succeeds.
-                                    _orchestrator.UpdateHistoryAuthorization(historyAuthorization.ApplicationId,
-                                        FetchCurrentAuthenticatedUser(),
-                                        _mapper.Map<B2CBroker.Domain.HistoryAuthorization>(historyAuthorization),
-                                        _repo),
-                                (e, l) =>
-                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
-                                    // relay sophisticated information back to client.
-                                    return new
-                                        B2CBroker.Data.Errors.HistoryAuthorizationNotUpdated
-                                        (Misc.Constants.Message_HistoryAuthorizationNotUpdated);
-                                },
-                                () =>
-                                {
-                                    // Finally Block.
-                                })
-                                .ConfigureAwait(Misc.Constants.FALSE))
-                            .Map(r => r != null
-                                        ? r.IsSuccess
-                                            ? (IActionResult)Ok(r.OperationResult)
-                                            : (IActionResult)base.BadRequest(r.OperationResult)
-                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotUpdated))
-                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotUpdated),
-                                error => error is B2CBroker.Data.Errors.HistoryAuthorizationNotUpdated)
-                            .Reduce(_ => (IActionResult)InternalServerError()));
-
-
-        [HttpDelete(Misc.Constants.API_Route_IdParam)]
-        public async Task<IActionResult> DeleteHistoryAuthorization(int id, int applicationId) =>
-            await TryCatch.SanitiseInput<int, int, Option<Error>>
-                    ((_authorizationId, _applicationId) =>   // Check/Validate supplied Input Data, act accordingly.
-                    {
-                        // Any Airline Model Validation/Business Rules go here, apart from the ones specified in Models.
-                        if (_authorizationId > Misc.Constants.ZERO && _applicationId > Misc.Constants.ZERO)
-                        {
-                            return new None<Error>();
+                        error: err => {
+                          this.isDeleteButtonDisabled = Constant.FALSE;
+                          this.errorMessage = Constant.DeleteAuthorizationFailed;
+    
+                          this._loader.hide();
                         }
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInputLength);
-                    },
-                    (e, l) =>   // Exception occured while parsing/sanitising supplied input data, handle and revert to cleint.
-                    {
-                        return new B2CBroker.Data.Errors.InvalidInput(Misc.Constants.Error_InvalidInput);
-                    },
-                    () =>
-                    {
-                        // Finally Block.
-                    },
-                    id, applicationId)
-                    .ProcessOnNoneAsync<Error, IActionResult>
-                        ((e) => // We have encountered Sanitisation Error, return the Information to Client.
-                        {
-                            string _errorMessage = e is B2CBroker.Data.Errors.InvalidInput
-                                ? e is B2CBroker.Data.Errors.InvalidInput i
-                                    ? i._reason
-                                    : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid
-                                : Misc.Constants.Message_HistoryAuthorizationDetailsNotValid;
+                      });
+                }
+              },
+              error: (err) => {
+                // Nothing here.
+              }
+            }); 
+    }
 
-                            return Task.FromResult((IActionResult)base.BadRequest(_errorMessage));
-                        },
-                        async () => // Real Code - Goes in this Async Lambda.           
-                            (await TryCatch.ProcessBusinessTaskAsync<Either<Error, B2CBroker.Data.DatabaseOperationResult>>
-                                (
-                                    // Business Method to Run, when validation Succeeds. 
-                                    _orchestrator.DeleteHistoryAuthorization(applicationId,
-                                        FetchCurrentAuthenticatedUser(),
-                                        id.ToString(), // This is the History Authorization's Authorization Id.
-                                        _repo),
-                                (e, l) =>
-                                {   // We have encountered exception in one of the Business Method(s)/Layers, 
-                                    // relay sophisticated information back to client.
-                                    return new
-                                        B2CBroker.Data.Errors.HistoryAuthorizationNotDeleted
-                                        (Misc.Constants.Message_HistoryAuthorizationNotDeleted);
-                                },
-                                () =>
-                                {
-                                    // Finally Block.
-                                })
-                                .ConfigureAwait(Misc.Constants.FALSE))
-                            .Map(r => r != null
-                                        ? r.IsSuccess
-                                            ? (IActionResult)Ok(r.OperationResult)
-                                            : (IActionResult)base.BadRequest(r.OperationResult)
-                                        : (IActionResult)base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotDeleted))
-                            .Reduce(_ => base.BadRequest(Misc.Constants.Message_HistoryAuthorizationNotDeleted),
-                                error => error is B2CBroker.Data.Errors.HistoryAuthorizationNotDeleted)
-                            .Reduce(_ => (IActionResult)InternalServerError()));
+    public hasError = (controlName: string, errorName: string) => {
+        return this.deleteAuthorizationForm.controls[controlName].hasError(errorName);
+    }
+}
 
-
-        #region Private(s)
-
-        private string FetchCurrentAuthenticatedUser() =>
-            string.Empty;
-
-        private IActionResult InternalServerError() =>
-            StatusCode(StatusCodes.Status500InternalServerError);
-
-        #endregion
+@Component({
+    selector: 'authorization-delete-bottom-sheet-dialog',
+    templateUrl: 'authorization-delete-bottom-sheet.html',
+  })
+  export class AuthorizationDeleteBottomSheet {
+    constructor(private _bottomSheetRef: MatBottomSheetRef<AuthorizationDeleteBottomSheet>,
+      private _dataServiceAuthorizationBottomSheet: DataService,
+      @Inject(MAT_BOTTOM_SHEET_DATA) public data: any) { }
+  
+    openLink(event: MouseEvent): void {
+      this._bottomSheetRef.dismiss();
+      event.preventDefault();
+    }
+  
+    deleteAuthorization(event: MouseEvent) {
+      this._dataServiceAuthorizationBottomSheet
+        .deleteAuthorizationBottomSheetConfirmed(Constant.TRUE);
+  
+      this._bottomSheetRef.dismiss();
+      event.preventDefault();
     }
 }
 
 
+<mat-list>
+    <h3 matSubheader class="parent">
+      <button mat-raised-button mat-elevation-z8 color="warn"
+              matTooltip="Click here to confirm deletion of {{data.email}} for Application Id {{ data.applicationId }} from system"
+              (click)="deleteAuthorization($event)">
+        <mat-icon>delete</mat-icon>
+        Confirm Deletion of {{ data.email }} for Application Id {{ data.applicationId }}
+      </button>
+    </h3>
+</mat-list>
+  
+  
+  `````````````````````````````````````` authorization edit ```````````````
+  
+  
+<mat-card>
+    <div *ngIf="errorMessageActive" class="alert alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="successMessageActive" class="alert alert-success">{{ successMessage }}</div>
+  
+    <form novalidate [formGroup]="updateAuthorizationForm"
+          autocomplete="off" (ngSubmit)="saveEditOfAuthorization(updateAuthorizationForm.value)" fxLayout="column wrap"
+          fxLayoutAlign="center center" fxLayoutGap="10px">
+  
+      <mat-card-title>Update Authorization</mat-card-title>
+  
+      <mat-card-content>
+  
+        <mat-form-field>
+          <input matInput #inputid placeholder="Id" id="id" formControlName="id" />
+        </mat-form-field>
+
+        <mat-form-field>
+            <input matInput #inputapplicationid placeholder="Application Id" 
+                id="applicationid" formControlName="applicationid" />
+        </mat-form-field>
+  
+        <mat-form-field>
+            <input matInput #inputemail placeholder="Email"
+                 maxlength="500" id="email" formControlName="email" />
+  
+            <mat-hint align="center">{{inputemail.value?.length || 0}}/100</mat-hint>
+  
+            <mat-error *ngIf="hasError('email', 'required')">Email Address is required</mat-error>
+            <mat-error *ngIf="hasError('email', 'maxlength')">Only 500 characters are allowed</mat-error>
+            <mat-error *ngIf="hasError('email', 'minlength')">At least 5 characters are required</mat-error>
+        </mat-form-field>          
+  
+      </mat-card-content>
+  
+  
+      <mat-card-actions align="center">
+  
+        <button mat-raised-button color="primary"
+                matTooltip="Click here to Save details for {{inputemail.value}}"
+                type="submit" [disabled]="!updateAuthorizationForm.valid || isSaveDisabled(updateAuthorizationForm.value)">
+          <mat-icon>save</mat-icon>
+          Update Authorization
+        </button>
+  
+        <button type="button" mat-raised-button color="warn" (click)="cancelUpdate()"
+                matTooltip="Click here to Cancel" [disabled]="isSaveDisabled(undefined)">
+          <mat-icon>cancel_presentation</mat-icon>
+          Cancel
+        </button>
+  
+  
+      </mat-card-actions>
+  
+      <mat-card-actions align="center">
+        <button class="button" mat-raised-button mat-elevation-z8 color="accent"
+                matTooltip="Click here to go back to Authorizations page"
+                type="button" (click)="backToAuthorizations()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Authorizations
+        </button>
+      </mat-card-actions>
+  
+    </form>
+  </mat-card>
+  
+  import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { DataService } from "../shared/dataService";
+import { Router } from '@angular/router';
+import { Constant } from "../shared/Constant";
+import { FormControl, FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
+import { LoaderService } from "../loader/loader.service";
+import { AuthorizationModel } from "../models/authorization";
+
+@Component({
+  selector: "authorizationedit",
+  templateUrl: "authorizationedit.component.html",
+  styleUrls: ["authorizationedit.component.css"]
+})
+export class AuthorizationEdit implements OnInit {
+
+    updateAuthorizationForm: FormGroup;
+    errorMessage: string = Constant.String_Undefined;
+    successMessage: string = Constant.String_Undefined;
+
+    isSaveButtonDisabled: boolean;
+
+    errorMessageActive: boolean = Constant.FALSE;
+    successMessageActive: boolean = Constant.FALSE;
+
+    public _username: string = Constant.String_Undefined;
+    private updatedAuthorization: AuthorizationModel = new AuthorizationModel();
+
+
+    constructor(private _dataService: DataService, private _router: Router, private _loader: LoaderService, 
+        fb: FormBuilder, private _changeDetector: ChangeDetectorRef) {
+        if (this._dataService.currentAuthorizationToEdit !== Constant.NULL && this._dataService.currentAuthorizationToEdit !== Constant.Undefined) {
+    
+          this.updateAuthorizationForm = fb.group({
+            hideRequired: Constant.FALSE,
+            floatLabel: Constant.FloatLabel_AUTO
+          });
+    
+          this.updateAuthorizationForm = new FormGroup(
+            {
+                id: new FormControl({ value: this._dataService.currentAuthorizationToEdit.id, disabled: Constant.TRUE }),
+                applicationid: new FormControl({ value: this._dataService.currentAuthorizationToEdit.applicationId, disabled: Constant.TRUE }),
+                email: new FormControl({ value: this._dataService.currentAuthorizationToEdit.email, disabled: Constant.TRUE },
+                    [Validators.required, Validators.maxLength(Constant.AuthorizationEmailMaxLength),
+                    Validators.minLength(Constant.AuthorizationEmailMinLength)])
+            });
+
+            this.errorMessageActive = Constant.TRUE;
+            this.errorMessage = Constant.Error_EmailCannotBeUpdated;
+        }
+        else {
+          _router.navigate([Constant.ApplicationUrl]);
+        }    
+    }
+
+
+    async ngOnInit() {
+        this._loader.show();
+        await this._dataService.FetchAccessToken();   
+    
+        this._username = this._dataService.FetchUserName();
+        if (this._username !== Constant.NULL && this._username !== Constant.String_Undefined) {
+          this.isSaveButtonDisabled = Constant.TRUE;
+          this.mapAuthorizationModels(this._dataService.currentAuthorizationToEdit);
+          this._loader.hide();
+        } else {
+          // No user Found - Present Error Page.
+          this._loader.hide();
+          this._router.navigate([Constant.ErrorPageUrl,
+          {
+            message: Constant.PermissionErrorMessageAccess,
+            type: Constant.Error_Type_Permission
+          }]);
+        }
+    }
+
+    ngAfterContentChecked(): void {
+        this._changeDetector.detectChanges();
+    }
+    
+    cancelUpdate() {
+        this._router.navigate([Constant.DashboardUrl]);
+    }
+    
+    backToAuthorizations() {
+        this._router.navigate([Constant.AuthorizationUrl]);
+    }
+
+
+    isSaveDisabled(_passedFormAuthorization: AuthorizationModel) {
+        if (_passedFormAuthorization !== Constant.Undefined) {
+          if (this.updatedAuthorization.email !== _passedFormAuthorization.email) {
+            this.isSaveButtonDisabled = Constant.FALSE;
+            this.errorMessageActive = Constant.FALSE;
+            this.successMessageActive = Constant.FALSE;
+          }
+          else {
+            this.isSaveButtonDisabled = Constant.TRUE;
+          }
+        }
+        return this.isSaveButtonDisabled;
+    }
+
+    saveEditOfAuthorization(_passedFormAuthorization: AuthorizationModel) {
+    
+        // #region Set the Disabled Column Name before we Fire Update request    
+        _passedFormAuthorization.id = this._dataService.currentAuthorizationToEdit.id;
+        _passedFormAuthorization.applicationId = this._dataService.currentAuthorizationToEdit.applicationId;
+        // #endregion
+    
+        this._loader.show();
+    
+        this._dataService.updateAuthorization(_passedFormAuthorization)
+          .subscribe(
+            {
+              next: responseText => {
+                this.mapAuthorizationModels(_passedFormAuthorization);
+                this.isSaveButtonDisabled = Constant.TRUE;
+    
+                this.successMessage = responseText;
+                this.successMessageActive = Constant.TRUE;
+                this.errorMessageActive = Constant.FALSE;
+    
+                this._loader.hide();
+              },
+              error: err => {
+                this.errorMessage = Constant.Error_FailedToUpdateApplication;
+                this.errorMessageActive = Constant.TRUE;
+    
+                this._loader.hide();
+              }
+            });
+    }
+
+    mapAuthorizationModels(_passedFormAuthorization: AuthorizationModel) {
+        this.updatedAuthorization.email = _passedFormAuthorization.email;
+    }
+    
+    public hasError = (controlName: string, errorName: string) => {
+        return this.updateAuthorizationForm.controls[controlName].hasError(errorName);
+    }
+}
+
+``````````````````````````````````````
+  
+  
+  
+  
+  
+
+  
+  
+
+
+  
+
+  
 
 
 
+	  
+  
+
+ 
