@@ -301,6 +301,97 @@ export class DataService implements OnInit, OnDestroy {
 
 
   // #endregion
+  
+  
+  
+  
+  
+  // #region 3 -> Current Application(s) API related Interaction(s).
+
+  public currentAuthorizations: CurrentAuthorizationModel[] = [];
+  public current_currentAuthorization: CurrentAuthorizationModel;
+
+  public viewHistoryAuthorizationForApplicationId: number = Constant.Undefined;
+  public viewHistoryAuthorizationForAuthorizationId : number = Constant.Undefined;
+
+  public current_currentAuthorizationToEdit: CurrentAuthorizationModel = Constant.Undefined;;
+  public current_currentAuthorizationToDelete: CurrentAuthorizationModel = Constant.Undefined;;
+  public deleteCurrentAuthorizationBottomSheetClicked: boolean = Constant.FALSE;
+
+
+  loadCurrentAuthorizations(): Observable<CurrentAuthorizationModel[]> {
+    return this.http.get<CurrentAuthorizationModel[]>(Constant.API_URL + Constant.API_CURRENT_AUTHORIZATIONS_ENDPOINT +
+      Constant.Question_Mark + Constant.Authorization_Id + Constant.Equals_Sign + this.viewCurrentAuthorizationForAuthorizationId +
+      Constant.Ampersand_Sign +
+      Constant.Application_Id + Constant.Equals_Sign + this.viewCurrentAuthorizationForApplicationId)
+    .pipe(
+      tap(res => {
+        this.currentAuthorizations = res;
+        return JSON.stringify(res);
+      }),
+      catchError(this.handleError<any>(Constant.FetchCurrentAuthorizationsFailed)));
+  }
+
+  loadCurrentAuthorization(_authorizationId: number, _applicationId: number): Observable<CurrentAuthorizationModel> {
+    return this.http.get<CurrentAuthorizationModel>(Constant.API_URL + Constant.API_CURRENT_AUTHORIZATIONS_ENDPOINT + 
+      Constant.Forward_Slash + _authorizationId + Constant.Question_Mark + 
+      Constant.Application_Id + Constant.Equals_Sign + _applicationId)
+    .pipe(
+      tap(res => {
+        this.current_currentAuthorization = res;
+        return JSON.stringify(res);
+      }),
+      catchError(this.handleError<any>(Constant.FetchCurrentAuthorizationFailed)));
+  }
+
+  public editCurrentAuthorization(_current_currentAuthorizationToEdit: CurrentAuthorizationModel) {
+    this.current_currentAuthorizationToEdit = _current_currentAuthorizationToEdit;
+  } 
+
+  public updateCurrentAuthorization(_current_currentAuthorization: CurrentAuthorizationModel): Observable<string> {
+    return this.http.put(Constant.API_URL + Constant.API_CURRENT_AUTHORIZATIONS_ENDPOINT + Constant.Forward_Slash + _current_currentAuthorization.applicationId,
+      _current_currentAuthorization, { responseType: 'text' })
+      .pipe(
+        tap(res => { return res; }),
+        catchError(this.handleError<any>(Constant.UpdateCurrentAuthorizationFailed)));
+  }
+
+  public addCurrentAuthorization(_current_currentAuthorization: CurrentAuthorizationModel): Observable<CurrentAuthorizationModel> {
+
+    let headers = new HttpHeaders({
+      "Content-Type": "application/json; charset=utf-8",
+    });
+    let options = { headers: headers };
+
+    return this.http.post<CurrentAuthorizationModel>(Constant.API_URL + Constant.API_CURRENT_AUTHORIZATIONS_ENDPOINT,
+      _current_currentAuthorization, options)
+      .pipe(
+        tap(res => { return JSON.stringify(res); }), 
+        catchError(this.handleError<any>(Constant.AddCurrentAuthorizationFailed)));
+  }
+
+
+  public deleteCurrentAuthorization(_current_currentAuthorizationToDelete: CurrentAuthorizationModel) {
+    this.current_currentAuthorizationToDelete = _current_currentAuthorizationToDelete;
+  }
+
+  public deleteCurrentAuthorizationBottomSheetConfirmed(_confirmed: boolean) {
+    this.deleteCurrentAuthorizationBottomSheetClicked = _confirmed;
+  }
+
+
+  public deleteChoosenCurrentAuthorization(_currentAuthorization: CurrentAuthorizationModel): Observable<string> {
+    return this.http.delete(Constant.API_URL + Constant.API_AUTHORIZATIONS_ENDPOINT + 
+      Constant.Forward_Slash + _currentAuthorization.authorizationId + Constant.Question_Mark + 
+      Constant.Application_Id + Constant.Equals_Sign + _currentAuthorization.applicationId,
+      { responseType: 'text' })
+      .pipe(
+        tap(res => { return res; }),
+        catchError(this.handleError<any>(Constant.DeleteCurrentAuthorizationFailed)));
+  }
+
+
+  // #endregion
 
 
 }
