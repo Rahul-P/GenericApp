@@ -1,4 +1,8 @@
 # GenericApp
+
+public static T[] DropNulls<T>(this T[] _array) =>
+            _array.Where(_a => _a != null).ToArray();
+   
 The App - aka - "the generic app".   We are not here to take part, we are here to Take Over.
 
 
