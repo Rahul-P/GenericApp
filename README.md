@@ -1,3 +1,25 @@
+
+
+public static Set_Control_Values(_formGroupToSetValuesFor: FormGroup, _keyValueList: { _key: string, _value: any }[]) {
+        if (StaticFunctions.ValueIsDefinedAndNotNull(_formGroupToSetValuesFor) && StaticFunctions.Check_Array_Length(_keyValueList)) {
+            _keyValueList.forEach(_keyValue => {
+                _formGroupToSetValuesFor.get(_keyValue._key).setValue(_keyValue._value);
+            });
+        }
+    }
+    
+    Statics.Set_Control_Values(this.updateSomeForm,
+      [
+          { _key: "name", _value: this._dataService.currentSomeToEdit.name },
+          { _key: "description", _value: this._dataService.currentSomeToEdit.description },
+          { _key: "preferredMethod", _value: this._dataService.currentSomeToEdit.preferredMethod },
+          { _key: "contactName", _value: this._dataService.currentSomeToEdit.contactName},
+          { _key: "contactEmail", _value: this._dataService.currentSomeToEdit.contactEmail },
+          { _key: "contactPhone", _value: this._dataService.currentSomeToEdit.contactPhone },
+          { _key: "SomeClass", _value: this._dataService.currentSomeToEdit.airlineClass }
+      ]);
+  }
+
 # GenericApp
 
 public static T[] DropNulls<T>(this T[] _array) =>
